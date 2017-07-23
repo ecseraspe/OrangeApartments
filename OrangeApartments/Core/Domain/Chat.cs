@@ -9,9 +9,9 @@ namespace OrangeApartments.Core.Domain
     {
         public int ChatId { get; set; }
         public string Message { get; set; }
-        public string MessageDate { get; set; }
+        public DateTime MessageDate { get; set; }
 
-        public User Sender { get; set; }
-        public User Receiver { get; set; }
+        public virtual User Sender { get; set; }
+        public virtual User Receiver { get; set; }
     }
 }

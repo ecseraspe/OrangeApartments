@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
@@ -24,19 +25,19 @@ namespace OrangeApartments.Core.Domain
         public string Street { get; set; }
         public uint StreetNumber { get; set; }
         public ushort FloorNumber { get; set; }
+        [Required]
+        public int UserID { get; set; }
 
-        public User User { get; set; }
+        public virtual User User { get; set; }
+        public virtual List<ApartmentComments> Comments { get; set; }
 
-        [ForeignKey("Apartment")]
-        public List<ApartmentComments> Comments { get; set; }
+        //[ForeignKey("Apartment")]
+        //public List<ApartmentBooking> Bookings { get; set; }
 
-        [ForeignKey("Apartment")]
-        public List<ApartmentBooking> Bookings { get; set; }
+        //[ForeignKey("Apartment")]
+        //public List<UserWatchList> ApartmentWatchList { get; set; }
 
-        [ForeignKey("Apartment")]
-        public List<UserWatchList> ApartmentWatchList { get; set; }
-
-        [ForeignKey("Apartment")]
-        public List<ApartmentTags> Tags { get; set; }
+        //[ForeignKey("Apartment")]
+        //public List<ApartmentTags> Tags { get; set; }
     }
 }

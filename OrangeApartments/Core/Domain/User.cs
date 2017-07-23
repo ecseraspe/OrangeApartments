@@ -12,29 +12,31 @@ namespace OrangeApartments.Core.Domain
         public int UserId { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
+        public DateTime RegistrationDate { get; set; }
         public string Mail { get; set; }
         public bool IsAdmin { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
 
-        public List<Apartment> Apartments;
+        public virtual List<Apartment> Apartments { get; set; }
+        public virtual List<ApartmentComments> ApartmentCommnets { get; set; }
 
-        [ForeignKey("User")]
+        // List of users whom this user wrote the comments
+        [InverseProperty("Commentator")]
         public List<UserComments> UserCommnets { get; set; }
 
-        [ForeignKey("User")]
-        public List<ApartmentComments> ApartmentCommnets { get; set; }
+        // Users who are commented by current user
+        [InverseProperty("CommentedUser")]
+        public List<UserComments> CommentedUsers { get; set; }
 
-        [ForeignKey("Sender")]
+        [InverseProperty("Sender")]
         public List<Chat> ChatAsSender { get; set; }
 
-        [ForeignKey("Receiver")]
+        [InverseProperty("Receiver")]
         public List<Chat> ChatAsReceiver { get; set; }
 
-        [ForeignKey("User")]
         public List<ApartmentBooking> Bookings { get; set; }
 
-        [ForeignKey("User")]
         public List<UserWatchList> WatchList { get; set; }
     }
 }
