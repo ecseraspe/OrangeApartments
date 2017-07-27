@@ -1,5 +1,6 @@
 packages/
 OrangeApartments/bin/
 OrangeApartments/obj/
+OrangeApartments/packages/
 OrangeApartments.sln
 .vs/
