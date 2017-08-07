@@ -13,7 +13,7 @@ namespace OrangeApartments.Core.Domain
         public int? UserId { get; set; }
         public int ApartmentId { get; set; }
 
-        public User User { get; set; }
-        public Apartment Apartment { get; set; }
+        public virtual User User { get; set; }
+        public virtual Apartment Apartment { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace OrangeApartments.Core.Domain
         public int TagId { get; set; }
         public int ApartmentId { get; set; }
 
-        public Apartment Apartment { get; set; }
-        public Tag Tag { get; set; }
+        public virtual Apartment Apartment { get; set; }
+        public virtual Tag Tag { get; set; }
     }
 }

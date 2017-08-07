@@ -29,15 +29,9 @@ namespace OrangeApartments.Core.Domain
         public int UserID { get; set; }
 
         public virtual User User { get; set; }
-        public virtual List<ApartmentComments> Comments { get; set; }
-
-        //[ForeignKey("Apartment")]
-        //public List<ApartmentBooking> Bookings { get; set; }
-
-        //[ForeignKey("Apartment")]
-        //public List<UserWatchList> ApartmentWatchList { get; set; }
-
-        //[ForeignKey("Apartment")]
-        //public List<ApartmentTags> Tags { get; set; }
-    }
+        public virtual ICollection<ApartmentComments> Comments { get; set; }
+        public virtual ICollection<ApartmentBooking> Bookings { get; set; }
+        public virtual ICollection<UserWatchList> ApartmentWatchList { get; set; }
+        public virtual ICollection<ApartmentTags> Tags { get; set; }
+}
 }

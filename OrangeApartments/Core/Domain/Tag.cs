@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace OrangeApartments.Core.Domain
 {
@@ -10,6 +8,6 @@ namespace OrangeApartments.Core.Domain
         public int TagId { get; set; }
         public String TagName { get; set; }
 
-        public List<ApartmentTags> ApartmentTags { get; set; }
+        public virtual ICollection<ApartmentTags> ApartmentTags { get; set; }
     }
 }

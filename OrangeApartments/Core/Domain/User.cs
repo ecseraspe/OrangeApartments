@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using OrangeApartments.Core.Domain;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OrangeApartments.Core.Domain
@@ -23,20 +20,19 @@ namespace OrangeApartments.Core.Domain
 
         // List of users whom this user wrote the comments
         [InverseProperty("Commentator")]
-        public List<UserComments> UserCommnets { get; set; }
+        public virtual ICollection<UserComments> UserCommnets { get; set; }
 
         // Users who are commented by current user
         [InverseProperty("CommentedUser")]
-        public List<UserComments> CommentedUsers { get; set; }
+        public virtual ICollection<UserComments> CommentedUsers { get; set; }
 
         [InverseProperty("Sender")]
-        public List<Chat> ChatAsSender { get; set; }
-
+        public virtual ICollection<Chat> ChatAsSender { get; set; }
         [InverseProperty("Receiver")]
-        public List<Chat> ChatAsReceiver { get; set; }
+        public virtual ICollection<Chat> ChatAsReceiver { get; set; }
+  
+        public virtual ICollection<ApartmentBooking> Bookings { get; set; }
 
-        public List<ApartmentBooking> Bookings { get; set; }
-
-        public List<UserWatchList> WatchList { get; set; }
+        public virtual ICollection<UserWatchList> WatchList { get; set; }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using OrangeApartments.Core.Domain;
 
 namespace OrangeApartments.Persistence
@@ -12,9 +8,10 @@ namespace OrangeApartments.Persistence
         public ApartmentContext()
             : base("name=ApartmentContext")
         {
-            this.Configuration.LazyLoadingEnabled = true;
-            Database.SetInitializer(new MyDbInitializer());
+            this.Configuration.LazyLoadingEnabled = false;
+            //Database.SetInitializer(new MyDbInitializer());
         }
+
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Apartment> Apartments { get; set; }
         public virtual DbSet<ApartmentComments> ApartmentComments { get; set; }
