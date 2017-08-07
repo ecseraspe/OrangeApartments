@@ -5,6 +5,11 @@ namespace OrangeApartments.Core.Domain
 {
     public class Tag
     {
+        public Tag()
+        {
+            ApartmentTags = new List<ApartmentTags>();
+        }
+
         public int TagId { get; set; }
         public String TagName { get; set; }
 

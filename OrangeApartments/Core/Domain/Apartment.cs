@@ -9,6 +9,14 @@ namespace OrangeApartments.Core.Domain
 {
     public class Apartment
     {
+        public Apartment()
+        {
+            Comments = new List<ApartmentComments>();
+            Bookings = new List<ApartmentBooking>();
+            ApartmentWatchList = new List<UserWatchList>();
+            Tags = new List<ApartmentTags>();
+        }
+
         public int ApartmentId { get; set; }
         public byte Type { get; set; }
         public uint Price { get; set; }

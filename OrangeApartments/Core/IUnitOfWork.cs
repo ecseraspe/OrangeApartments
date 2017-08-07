@@ -13,7 +13,7 @@ namespace OrangeApartments.Core
         IApartmentBookingRepository ApartmentBooking { get; }
         IUserWatchListRepository UserWatchList { get; }
         ITagRepository Tags { get; }
-        IApartmentTagRepository ApartmentTags { get; }
+        IApartmentTagsRepository ApartmentTags { get; }
 
         int SaveChanges();
     }

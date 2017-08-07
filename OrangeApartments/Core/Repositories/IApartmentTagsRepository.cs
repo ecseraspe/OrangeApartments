@@ -2,7 +2,7 @@
 
 namespace OrangeApartments.Core.Repositories
 {
-    public interface IApartmentTagRepository :IRepository<ApartmentTags>
+    public interface IApartmentTagsRepository :IRepository<ApartmentTags>
     {
     }
 }

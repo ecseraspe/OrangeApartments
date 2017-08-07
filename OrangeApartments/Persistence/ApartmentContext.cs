@@ -9,7 +9,6 @@ namespace OrangeApartments.Persistence
             : base("name=ApartmentContext")
         {
             this.Configuration.LazyLoadingEnabled = false;
-            //Database.SetInitializer(new MyDbInitializer());
         }
 
         public virtual DbSet<User> Users { get; set; }

@@ -6,6 +6,18 @@ namespace OrangeApartments.Core.Domain
 {
     public class User
     {
+        public User()
+        {
+            Apartments = new List<Apartment>();
+            ApartmentCommnets = new List<ApartmentComments>();
+            UserCommnets = new List<UserComments>();
+            CommentedUsers = new List<UserComments>();
+            ChatAsSender = new List<Chat>();
+            ChatAsReceiver = new List<Chat>();
+            Bookings = new List<ApartmentBooking>();
+            WatchList = new List<UserWatchList>();
+        }
+
         public int UserId { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }

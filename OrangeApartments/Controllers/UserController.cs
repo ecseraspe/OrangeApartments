@@ -11,19 +11,20 @@ namespace OrangeApartments.Controllers
 {
     public class UserController : ApiController
     {
-        private UnitOfWork _uof;
+        //private UnitOfWork _uof;
 
-        public UserController()
-        {
-            this._uof = new UnitOfWork(new ApartmentContext());
-        }
+        //public UserController()
+        //{
+        //    this._uof = new UnitOfWork(new ApartmentContext());
+        //}
 
         // GET: api/User
         public IEnumerable<User> Get()
         {
             using (var uof = new UnitOfWork(new ApartmentContext()))
             {
-                return uof.Users.GetListOfAdmins();
+                var users = uof.Users.GetListOfAdmins();
+                return users;
             }
         }
 
