@@ -13,7 +13,7 @@ namespace OrangeApartments.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201707231350360_initial"; }
+            get { return "201708131924369_initial"; }
         }
         
         string IMigrationMetadata.Source

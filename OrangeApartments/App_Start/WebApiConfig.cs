@@ -1,6 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Practices.Unity;
+using OrangeApartments.App_Start;
+using OrangeApartments.Core;
+using OrangeApartments.Core.Repositories;
+using OrangeApartments.Persistence;
+using OrangeApartments.Persistence.Repository;
 using System.Net.Http.Headers;
 using System.Web.Http;
 
@@ -16,6 +19,12 @@ namespace OrangeApartments
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            // IoC
+            var container = new UnityContainer();
+            container.RegisterType<IUnitOfWork, UnitOfWork>();
+            container.RegisterType<IUserRepository, UserRepository>();
+            config.DependencyResolver = new IoC(container);
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",

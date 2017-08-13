@@ -1,4 +1,5 @@
-﻿using OrangeApartments.Core.Domain;
+﻿using OrangeApartments.Core;
+using OrangeApartments.Core.Domain;
 using OrangeApartments.Persistence;
 using System;
 using System.Collections.Generic;
@@ -11,19 +12,20 @@ namespace OrangeApartments.Controllers
 {
     public class UserController : ApiController
     {
-        //private UnitOfWork _uof;
+        private IUnitOfWork _uof;
 
-        //public UserController()
-        //{
-        //    this._uof = new UnitOfWork(new ApartmentContext());
-        //}
+        public UserController(IUnitOfWork uof)
+        {
+            _uof = uof;
+        }
 
         // GET: api/User
+
         public IEnumerable<User> Get()
         {
-            using (var uof = new UnitOfWork(new ApartmentContext()))
+            using (_uof)
             {
-                var users = uof.Users.GetListOfAdmins();
+                var users = _uof.Users.GetListOfAdmins();
                 return users;
             }
         }
@@ -31,20 +33,20 @@ namespace OrangeApartments.Controllers
         // GET: api/User/5
         public User Get(int id)
         {
-            using (var uof = new UnitOfWork(new ApartmentContext()))
-            {
-                return uof.Users.Get(id);
-            }
+            return _uof.Users.Get(id);
         }
 
         // POST: api/User
-        public void Post([FromBody]string value)
+        public void Post([FromBody] User user)
         {
+            var content = Request.Content;
+            var headers = Request.Headers;
         }
 
         // PUT: api/User/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody]User user)
         {
+            var date = user.RegistrationDate;
         }
 
         // DELETE: api/User/5

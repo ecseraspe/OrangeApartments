@@ -20,5 +20,10 @@ namespace OrangeApartments.Persistence
         public virtual DbSet<UserWatchList> UserWatchList { get; set; }
         public virtual DbSet<ApartmentTags> ApartmentTags { get; set; }
         public virtual DbSet<Tag> Tag { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+
+        }
     }
 }

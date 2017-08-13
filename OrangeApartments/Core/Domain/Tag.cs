@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace OrangeApartments.Core.Domain
 {
@@ -11,6 +12,7 @@ namespace OrangeApartments.Core.Domain
         }
 
         public int TagId { get; set; }
+        [MaxLength(50)]
         public String TagName { get; set; }
 
         public virtual ICollection<ApartmentTags> ApartmentTags { get; set; }
