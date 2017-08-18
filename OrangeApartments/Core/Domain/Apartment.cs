@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace OrangeApartments.Core.Domain
 {
@@ -16,32 +15,23 @@ namespace OrangeApartments.Core.Domain
             ApartmentWatchList = new List<UserWatchList>();
             Tags = new List<ApartmentTags>();
 
-            //Default values setting
-            Price = 0;
-            Title = "";
-            Type = 0;
-            BedroomCount = 1;
-            SleepingPlaces = 1;
-            Rating = 0;
-            RentType = 1;
+            PostDate = DateTime.Now;
         }
 
         public int ApartmentId { get; set; }
         public byte Type { get; set; }
         [Range(typeof(decimal), "0", "79228162514264337593543950335")]
         public decimal Price { get; set; }
-        public ushort BedroomCount { get; set; }
-        public ushort SleepingPlaces { get; set; }
+        public short BedroomCount { get; set; }
+        public short SleepingPlaces { get; set; }
         [MaxLength(20)]
         public string Title { get; set; }
         public float Rating { get; set; }
         [MaxLength(500)]
         public string Description { get; set; }
-        public ushort RentType { get; set; }
+        public short RentType { get; set; }
         public float Square { get; set; }
         [DataType(DataType.Date)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-YYYY}", ApplyFormatInEditMode = true)]
         public DateTime PostDate { get; set; }
         [MaxLength(50)]
         public string City { get; set; }
@@ -49,8 +39,8 @@ namespace OrangeApartments.Core.Domain
         public string District { get; set; }
         [MaxLength(50)]
         public string Street { get; set; }
-        public uint StreetNumber { get; set; }
-        public ushort FloorNumber { get; set; }
+        public int StreetNumber { get; set; }
+        public short FloorNumber { get; set; }
         [Required]
         public int UserID { get; set; }
 
