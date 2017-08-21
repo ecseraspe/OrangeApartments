@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OrangeApartments.Core.Domain
 {
@@ -19,27 +18,34 @@ namespace OrangeApartments.Core.Domain
         }
 
         public int ApartmentId { get; set; }
+        [Range((byte)0, (byte)1)]
         public byte Type { get; set; }
         [Range(typeof(decimal), "0", "79228162514264337593543950335")]
         public decimal Price { get; set; }
+        [Range((short)1, (short)20)]
         public short BedroomCount { get; set; }
+        [Range((short)1, (short)20)]
         public short SleepingPlaces { get; set; }
         [MaxLength(20)]
         public string Title { get; set; }
+        [Range(0, 5)]
         public float Rating { get; set; }
         [MaxLength(500)]
         public string Description { get; set; }
+        [Range((short)0, (short)1)]
         public short RentType { get; set; }
+        [Range(5.0, 5000.0)]
         public float Square { get; set; }
-        [DataType(DataType.Date)]
-        public DateTime PostDate { get; set; }
-        [MaxLength(50)]
+        public DateTime PostDate { get; private set; }
+        [MinLength(3), MaxLength(50)]
         public string City { get; set; }
-        [MaxLength(50)]
+        [MinLength(3), MaxLength(50)]
         public string District { get; set; }
-        [MaxLength(50)]
+        [MinLength(3), MaxLength(50)]
         public string Street { get; set; }
-        public int StreetNumber { get; set; }
+        [Range((short)1, (short)2000)]
+        public short StreetNumber { get; set; }
+        [Range(1, 10000)]
         public short FloorNumber { get; set; }
         [Required]
         public int UserID { get; set; }

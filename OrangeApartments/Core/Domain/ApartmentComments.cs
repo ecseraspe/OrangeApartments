@@ -9,12 +9,14 @@ namespace OrangeApartments.Core.Domain
 {
     public class ApartmentComments
     {
+        public ApartmentComments()
+        {
+            CommentDate = DateTime.Now;
+        }
+
         public int ApartmentCommentsId { get; set; }
         [MaxLength(500)]
         public string Comment { get; set; }
-        [DataType(DataType.Date)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-YYYY}", ApplyFormatInEditMode = true)]
         public DateTime CommentDate { get; set; }
         [Required]
         public int ApartmentId { get; set; }

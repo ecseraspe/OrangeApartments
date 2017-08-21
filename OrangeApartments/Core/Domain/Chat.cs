@@ -9,12 +9,14 @@ namespace OrangeApartments.Core.Domain
 {
     public class Chat
     {
+        public Chat()
+        {
+            MessageDate = DateTime.Now;
+        }
+
         public int ChatId { get; set; }
         [MaxLength(500)]
         public string Message { get; set; }
-        [DataType(DataType.Date)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-YYYY}", ApplyFormatInEditMode = true)]
         public DateTime MessageDate { get; set; }
 
         public virtual User Sender { get; set; }

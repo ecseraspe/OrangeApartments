@@ -20,23 +20,28 @@ namespace OrangeApartments.Controllers
             _uof = uof;
         }
 
-        public IEnumerable<Apartment> Get()
+        public IEnumerable<ApartmentCard> Get()
         {
-            var aprt = _uof.Apartments.GetAll();
-            return aprt;
+            var data = _uof.Apartments.GetSelectedApartments(4);
+            var data2 = _uof.Apartments.GetApartmentsOfUser(4);
+            
+            return data;
         }
 
         // GET: api/Apartment/5
-        public ApartmentDTO Get(int id)
+        public Apartment Get(int id)
         {
-            return new ApartmentDTO(_uof.Apartments.Get(id));
+            return _uof.Apartments.Get(id);
         }
 
         // POST: api/Apartment
         public void Post([FromBody]Apartment apart)
         {
-            _uof.Apartments.Add(apart);
-            _uof.SaveChanges();
+            using (_uof)
+            {
+                _uof.Apartments.Add(apart);
+                _uof.SaveChanges();
+            }
         }
 
         // PUT: api/Apartment/5

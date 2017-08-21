@@ -8,6 +8,8 @@ namespace OrangeApartments.Core.Domain
 {
     public class UserWatchList
     {
+        public UserWatchList() { }
+
         public int UserWatchListId { get; set; }
         public int? UserId { get; set; }
         public int ApartmentId { get; set;}

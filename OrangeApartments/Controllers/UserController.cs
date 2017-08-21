@@ -39,8 +39,12 @@ namespace OrangeApartments.Controllers
         // POST: api/User
         public void Post([FromBody] User user)
         {
-            var content = Request.Content;
-            var headers = Request.Headers;
+            using (_uof)
+            {
+                _uof.Users.Add(user);
+                _uof.SaveChanges();
+            }
+
         }
 
         // PUT: api/User/5

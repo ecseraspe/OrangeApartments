@@ -17,7 +17,7 @@ namespace OrangeApartments.Core.Domain
             ChatAsReceiver = new List<Chat>();
             Bookings = new List<ApartmentBooking>();
             WatchList = new List<UserWatchList>();
-            Name = "";
+
             IsAdmin = false;
             RegistrationDate = DateTime.Now;
         }
@@ -27,12 +27,9 @@ namespace OrangeApartments.Core.Domain
         public string Name { get; set; }
         [MaxLength(10), MinLength(10)]
         public string Phone { get; set; }
-        [DataType(DataType.Date)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-YYYY}", ApplyFormatInEditMode = true)]
         public DateTime RegistrationDate { get; set; }
         [Required]
-        [MaxLength(30)]
+        [MaxLength(50)]
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
         public string Mail { get; set; }
