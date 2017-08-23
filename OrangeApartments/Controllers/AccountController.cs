@@ -8,13 +8,16 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using OrangeApartments.Core;
 using OrangeApartments.Core.Domain;
+using OrangeApartments.Filters;
 using OrangeApartments.Helpers;
 using OrangeApartments.Models;
 
 namespace OrangeApartments.Controllers
 {
+
     [RoutePrefix("api/account")]
     public class AccountController : ApiController
     {
@@ -41,7 +44,7 @@ namespace OrangeApartments.Controllers
 
         [Route("register")]
         [HttpPost]
-        public async Task<IHttpActionResult> Register([FromBody]RegisterModel model)
+        public IHttpActionResult Register([FromBody]RegisterModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -68,7 +71,67 @@ namespace OrangeApartments.Controllers
             return Ok(new HttpResponseMessage(HttpStatusCode.Created));
         }
 
+        [AuthFilter]
+        [Route("user-info")]
+        [HttpGet]
+        public User GetCurrentUserInfo()
+        {
+            var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
+            var currentUserId = SessionHelper.GetSession(accessTokenValue);
+            return _unitOfWork.Users.SingleOrDefault(u => u.UserId == currentUserId);
+        }
 
+        [AuthFilter]
+        [Route("change-pass")]
+        [HttpPost]
+        public IHttpActionResult ChangePassword([FromBody]ChangePasswordModel changePasswordModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
+            var currentUserId = SessionHelper.GetSession(accessTokenValue);
+            var currentUser = _unitOfWork.Users.Get(currentUserId);
+
+            currentUser.Password = Encrypt(changePasswordModel.NewPassword); 
+            _unitOfWork.Users.Update(currentUser);
+            _unitOfWork.SaveChanges();
+
+            return Ok();
+        }
+
+        [AuthFilter]
+        [Route("change-pass")]
+        [HttpPost]
+        public IHttpActionResult ChangeEmail([FromBody]ChangeEmailModel changeEmailModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
+            var currentUserId = SessionHelper.GetSession(accessTokenValue);
+            var requestPassword = Encrypt(changeEmailModel.CurrentPassword);
+            var currentUser = _unitOfWork.Users.SingleOrDefault(u=>u.Password == requestPassword);
+
+            if (currentUser == null)
+                return BadRequest("Invalid password");
+            
+            if(_unitOfWork.Users.SingleOrDefault(u=>u.Mail == changeEmailModel.NewEmail) != null)
+                return BadRequest("This email address is already in use by another account");
+
+            currentUser.Mail = changeEmailModel.NewEmail;
+            _unitOfWork.Users.Update(currentUser);
+            _unitOfWork.SaveChanges();
+
+            return Ok();
+        }
+
+
+        [AuthFilter]
         [Route("logout")]
         [HttpPost]
         public HttpResponseMessage Logout(RegisterModel model)

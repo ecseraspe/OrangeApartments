@@ -6,6 +6,7 @@ using OrangeApartments.Persistence;
 using OrangeApartments.Persistence.Repository;
 using System.Net.Http.Headers;
 using System.Web.Http;
+using OrangeApartments.Filters;
 
 namespace OrangeApartments
 {
@@ -31,6 +32,8 @@ namespace OrangeApartments
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Filters.Add(new AuthFilter());
         }
     }
 }

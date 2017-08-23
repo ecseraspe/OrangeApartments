@@ -15,6 +15,7 @@ namespace OrangeApartments.Filters
     {
         public string Role { get; set; }
 
+
         public override void OnActionExecuting(System.Web.Http.Controllers.HttpActionContext actionContext)
         {
             Role role = Core.Domain.Role.User;
@@ -33,7 +34,7 @@ namespace OrangeApartments.Filters
                         new StringContent("Header \"Token\" is required!"),
                     StatusCode = HttpStatusCode.BadRequest
                 };
-                throw new HttpResponseException(response);
+                actionContext.Response = response;
             }
 
             var accessTokenValues = actionContext.Request.Headers.GetValues("Token");
@@ -54,7 +55,8 @@ namespace OrangeApartments.Filters
                             new StringContent("This token is not valid, please refresh token or obtain valid token!"),
                         StatusCode = HttpStatusCode.Unauthorized
                     };
-                    throw new HttpResponseException(response);
+                    actionContext.Response = response;
+
                 }
             }
             else
@@ -65,7 +67,7 @@ namespace OrangeApartments.Filters
                         new StringContent("You must supply valid token to access method!"),
                     StatusCode = HttpStatusCode.Unauthorized
                 };
-                throw new HttpResponseException(response);
+                actionContext.Response = response;
             }
 
             base.OnActionExecuting(actionContext);
