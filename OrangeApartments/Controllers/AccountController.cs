@@ -34,19 +34,22 @@ namespace OrangeApartments.Controllers
             User user = _unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Mail && u.Password == ecryptedPassword);
             if (user == null)
             {
-                return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
             return Request.CreateResponse(HttpStatusCode.OK, SessionHelper.CreateSession(user.UserId));
         }
 
         [Route("register")]
         [HttpPost]
-        public HttpResponseMessage Register(RegisterModel model)
+        public async Task<IHttpActionResult> Register([FromBody]RegisterModel model)
         {
             if (!ModelState.IsValid)
             {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest); 
+                return BadRequest(ModelState);
             }
+
+            if (_unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email) != null)
+                return BadRequest("This email address is already in use by another account");
 
             _unitOfWork.Users.Add(new User()
             {
@@ -62,8 +65,9 @@ namespace OrangeApartments.Controllers
 
             _unitOfWork.SaveChanges();
 
-            return new HttpResponseMessage(HttpStatusCode.Created);
+            return Ok(new HttpResponseMessage(HttpStatusCode.Created));
         }
+
 
         [Route("logout")]
         [HttpPost]
