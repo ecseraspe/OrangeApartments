@@ -65,7 +65,7 @@ namespace OrangeApartments.Migrations
                         UserId = c.Int(nullable: false, identity: true),
                         Name = c.String(maxLength: 50),
                         Phone = c.String(maxLength: 10),
-                        RegistrationDate = c.DateTime(nullable: false),
+                        RegistrationDate = c.DateTime(nullable: true),
                         Mail = c.String(nullable: false, maxLength: 30),
                         IsAdmin = c.Boolean(nullable: false),
                         Login = c.String(),

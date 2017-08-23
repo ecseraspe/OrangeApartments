@@ -23,18 +23,11 @@ namespace OrangeApartments.Core.Domain
         }
 
         public int UserId { get; set; }
-        [MaxLength(50)]
         public string Name { get; set; }
-        [MaxLength(10), MinLength(10)]
         public string Phone { get; set; }
-        [DataType(DataType.Date)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-YYYY}", ApplyFormatInEditMode = true)]
+
         public DateTime RegistrationDate { get; set; }
-        [Required]
-        [MaxLength(30)]
-        [DataType(DataType.EmailAddress)]
-        [EmailAddress]
+
         public string Mail { get; set; }
         public bool IsAdmin { get; set; }
         public string Login { get; set; }
