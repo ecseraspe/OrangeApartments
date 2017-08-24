@@ -1,0 +1,8 @@
+packages/
+OrangeApartments/bin/
+OrangeApartments/obj/
+OrangeApartments/packages/
+OrangeApartments/publish/
+OrangeApartments/Properties/
+OrangeApartments.sln
+.vs/
