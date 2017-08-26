@@ -10,6 +10,7 @@ namespace OrangeApartments.Core.Repositories
     {
         IEnumerable<ApartmentCard> GetApartmentsOfUser(int userId);
         IEnumerable<ApartmentCard> GetApartmentsPaging(Expression<Func<Apartment, bool>> predicate, int page, int page_size);
-        IEnumerable<ApartmentCard> GetSelectedApartments(int userId);
+        IEnumerable<ApartmentCard> GetLikedApartments(int userId);
+        ApartmentCard GetApartmentDetailedById(int apartmentId);
     }
 }

@@ -16,7 +16,9 @@ namespace OrangeApartments.Persistence.Repository
 
         public IEnumerable<User> GetListOfAdmins()
         {
-            return ApartmentContext.Users.ToList();
+            return ApartmentContext.Users
+                .Where(u => u.IsAdmin == true)
+                .ToList();
         }
 
         public ApartmentContext ApartmentContext

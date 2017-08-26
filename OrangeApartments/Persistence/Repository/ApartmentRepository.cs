@@ -31,7 +31,7 @@ namespace OrangeApartments.Persistence.Repository
         }
 
         /// <summary>
-        /// Users have ability to select apartments thy have liked.
+        /// Users have ability to select apartments they have liked.
         /// This method returns list of such apartments.
         /// 
         /// Users cant access other users selected appartments lists,
@@ -39,7 +39,7 @@ namespace OrangeApartments.Persistence.Repository
         /// </summary>
         /// <param name="userId">Id of user whose selected apartments needs to be shown</param>
         /// <returns></returns>
-        public IEnumerable<ApartmentCard> GetSelectedApartments(int userId)
+        public IEnumerable<ApartmentCard> GetLikedApartments(int userId)
         {
             var data = ApartmentContext.UserWatchList.Include(uw => uw.Apartment)
                 .Where(uw => uw.UserId == userId)
@@ -64,6 +64,21 @@ namespace OrangeApartments.Persistence.Repository
                 .Skip(page * page_size)
                 .Take(page_size)
                 .Select(x => new ApartmentCard(x));
+        }
+
+        /// <summary>
+        /// Returns detailed inforamt
+        /// </summary>
+        /// <param name="apartmentId"></param>
+        /// <returns></returns>
+        public ApartmentCard GetApartmentDetailedById(int apartmentId)
+        {
+            var apartment = Get(apartmentId);
+
+            if (apartment != null)
+                return new ApartmentCard(apartment);
+            else
+                return null;
         }
 
         /// <summary>

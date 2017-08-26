@@ -123,6 +123,7 @@
     <Compile Include="Core\Domain\ApartmentTags.cs" />
     <Compile Include="Core\Domain\Chat.cs" />
     <Compile Include="Core\Domain\DTO\ApartmentCard.cs" />
+    <Compile Include="Core\Domain\DTO\UserDTO.cs" />
     <Compile Include="Core\Domain\Tag.cs" />
     <Compile Include="Core\Domain\User.cs" />
     <Compile Include="Core\Domain\UserComments.cs" />
@@ -193,6 +194,10 @@
     <EmbeddedResource Include="Migrations\201708201833260_tmp.resx">
       <DependentUpon>201708201833260_tmp.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\Img\Apartments\" />
+    <Folder Include="App_Data\Img\Users\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
