@@ -12,5 +12,6 @@ namespace OrangeApartments.Core.Repositories
         IEnumerable<ApartmentCard> GetApartmentsPaging(Expression<Func<Apartment, bool>> predicate, int page, int page_size);
         IEnumerable<ApartmentCard> GetLikedApartments(int userId);
         ApartmentCard GetApartmentDetailedById(int apartmentId);
+        ApartmentCard UpdateApartment(int apartmentId, ApartmentCard apartmentData);
     }
 }

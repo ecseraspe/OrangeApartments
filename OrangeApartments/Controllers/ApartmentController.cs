@@ -31,8 +31,7 @@ namespace OrangeApartments.Controllers
         //}
 
         // GET: api/Apartment/5
-        [HttpGet]
-        [Route("api/apartment/{apartmentId}/GetApartmentDetails")]
+        [Route("api/apartment/{apartmentId}")]
         public ApartmentCard Get(int apartmentId)
         {
             using (_uof)
@@ -41,29 +40,28 @@ namespace OrangeApartments.Controllers
             }
         }
 
-        // GET: api/Apartment/5/GetApartmentImage/2
-        [HttpGet]
-        [Route("api/apartment/{apartmentId}/GetApartmentImage/{imageIndex}")]
+        // GET: api/Apartment/5/img/0
+        [Route("api/apartment/{apartmentId}/img/{imageIndex}")]
         public HttpResponseMessage GetApartmentImage(int apartmentId, int imageIndex)
         {
-            string fileName = string.Format("{0}{1}.png", System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/Img/Apartments/"), apartmentId.ToString());
-
             var filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
-            string[] images = Directory.GetFiles(filePath, apartmentId.ToString() + "_*.*", System.IO.SearchOption.TopDirectoryOnly);
+            string[] images = Directory.GetFiles(filePath, apartmentId.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
             if ((images.Length > 0) && (imageIndex < images.Length))
                 if (File.Exists(images[imageIndex]))
                 {
-                    FileStream fileStream = File.OpenRead(fileName);
-                    HttpResponseMessage response = new HttpResponseMessage { Content = new StreamContent(fileStream) };
+                    FileStream fileStream = File.OpenRead(images[imageIndex]);
+                    HttpResponseMessage response = new HttpResponseMessage
+                    {
+                        Content = new StreamContent(fileStream),
+                        StatusCode = HttpStatusCode.OK
+                    };
                     response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
                     response.Content.Headers.ContentLength = fileStream.Length;
                     return response;
                 }
 
-            throw new HttpResponseException(HttpStatusCode.NotFound);
+            return Request.CreateResponse(HttpStatusCode.NotFound);
         }
-
-
 
         /// <summary>
         /// Saves Appartment images if App_Data/Img/Apartments folder
@@ -75,15 +73,14 @@ namespace OrangeApartments.Controllers
         /// <returns></returns>
         /// 
         // TODO Make file to store image hashesh for fater method execution
-        [HttpPost]
-        [Route("api/apartment/{apartmentId}/SaveApartmentImg")]
+        // POST: api/Apartment/5/SaveImg
+        [Route("api/apartment/{apartmentId}/SaveImg")]
         public HttpResponseMessage PostImage(int apartmentId)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            if (_uof.Apartments.GetApartmentDetailedById(apartmentId) == null)
-            {
 
-            }
+            if (_uof.Apartments.GetApartmentDetailedById(apartmentId) == null)
+                return Request.CreateResponse(HttpStatusCode.PreconditionFailed);
 
             try
             {
@@ -96,7 +93,7 @@ namespace OrangeApartments.Controllers
                     var postedFile = httpRequest.Files[file];
                     if (postedFile != null && postedFile.ContentLength > 0)
                     {
-                        int MaxContentLength = 1024 * 1024 * 4; //Size = 4 MB  
+                        int MaxContentLength = 1024 * 1024 * 5; //Size = 4 MB  
 
                         IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".gif", ".png" };
                         var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
@@ -114,36 +111,34 @@ namespace OrangeApartments.Controllers
                         else                                                       // only one img file per user allowed.
                         {
                             // check if user image already exists. If so - delete file to save new.
-                            string hashOfIncomeFile;
-                            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
-                            {
-                                hashOfIncomeFile = Convert.ToBase64String(sha1.ComputeHash(postedFile.InputStream));
-                            }
+                            var storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
+                            string[] files = Directory.GetFiles(storagePath, apartmentId.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
 
-                            var filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
-                            string[] files = Directory.GetFiles(filePath, apartmentId.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
+                            string posteFileHash;
+                            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                                posteFileHash = Convert.ToBase64String(sha1.ComputeHash(postedFile.InputStream));
+
+                            bool fileAlreadyExsists = false;
                             if (files.Length > 0)
                                 foreach (string tmpFile in files)
                                 {
-                                    string hash;
+                                    string localFileHash;
                                     using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
-                                    {
-                                        var fileArr = File.OpenRead(tmpFile);
-                                        hash = Convert.ToBase64String(sha1.ComputeHash(fileArr));
-                                        fileArr.Dispose();
-                                    }
-                                    if (hash == hashOfIncomeFile)
-                                        File.Delete(tmpFile);
+                                        localFileHash = Convert.ToBase64String(sha1.ComputeHash(File.OpenRead(tmpFile)));
+
+                                    if (localFileHash == posteFileHash)
+                                        fileAlreadyExsists = true;
                                 }
 
-                            filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/" + apartmentId.ToString() + "_" + DateTime.Now.ToFileTime().ToString() + extension);
-                            if (File.Exists(filePath))
-                                File.Delete(filePath);
-                            postedFile.SaveAs(filePath);
+                            if (fileAlreadyExsists == false)
+                            {
+                                storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/" + apartmentId.ToString() + "_" + DateTime.Now.ToFileTime().ToString() + extension);
+                                postedFile.SaveAs(storagePath);
+                            }
                         }
                     }
                 }
-                return Request.CreateErrorResponse(HttpStatusCode.Created, string.Format("Image Updated Successfully."));
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -155,20 +150,39 @@ namespace OrangeApartments.Controllers
 
 
         // POST: api/Apartment
-        public void Post([FromBody]Apartment apart)
+        [Route("api/apartment")]
+        public void Post([FromBody]ApartmentCard apart)
         {
-
+            using (_uof)
+            {
+                _uof.Apartments.Add(apart.GetApartment(apart));
+                _uof.SaveChanges();
+            }
         }
 
         // PUT: api/Apartment/5
-        public void Put(int id, [FromBody]string value)
+        [Route("api/apartment/{id}")]
+        public void Put(int id, [FromBody]Apartment value)
         {
-
+            using (_uof)
+            {
+                var apart = _uof.Apartments.Get(id);
+                apart = value;
+                _uof.SaveChanges();
+            }
         }
 
         // DELETE: api/Apartment/5
         public void Delete(int id)
         {
+            using (_uof)
+            {
+                var apartment = _uof.Apartments.Get(id);
+                if (apartment == null)
+                    return;
+
+                _uof.Apartments.Remove(apartment);
+            }
         }
     }
 }

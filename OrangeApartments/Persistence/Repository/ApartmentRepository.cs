@@ -81,6 +81,17 @@ namespace OrangeApartments.Persistence.Repository
                 return null;
         }
 
+        public ApartmentCard UpdateApartment(int apartmentId, ApartmentCard apartmentData)
+        {
+            var apartment = Get(apartmentId);
+
+            if (apartment == null)
+                return null;
+
+            apartment = apartmentData.GetApartment(apartment);
+
+            return apartmentData;
+        }
         /// <summary>
         /// Enables acces to other db tables.
         /// </summary>

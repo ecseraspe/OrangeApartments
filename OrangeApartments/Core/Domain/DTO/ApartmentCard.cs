@@ -12,11 +12,17 @@ namespace OrangeApartments.Core.Domain.DTO
         public ApartmentCard(Apartment apartment)
         {
             ApartmentId = apartment.ApartmentId;
-            Price = apartment.Price;
             Type = apartment.Type;
+            Price = apartment.Price;
             BedroomCount = apartment.BedroomCount;
+            SleepingPlaces = apartment.SleepingPlaces;
+            Square = apartment.Square;
+            
             Title = apartment.Title;
             Rating = apartment.Rating;
+            Description = apartment.Description;
+            PostDate = apartment.PostDate.Date;
+
             City = apartment.City;
             District = apartment.District;
             Street = apartment.Street;
@@ -25,19 +31,72 @@ namespace OrangeApartments.Core.Domain.DTO
             UserID = apartment.UserID;
         }
 
-        public int ApartmentId { get; private set; }
-        public string Title { get; private set; }
-        public byte Type { get; private set; }
-        public decimal Price { get; private set; }
-        public short BedroomCount { get; private set; }
-        public float Rating { get; private set; }
+        public int ApartmentId { get; set; }
 
-        public string City { get; private set; }
-        public string District { get; private set; }
-        public string Street { get; private set; }
-        public short StreetNumber { get; private set; }
-        public short FloorNumber { get; private set; }
+        public string Title { get; set; }
+        public byte Type { get; set; }
+        public decimal Price { get; set; }
+        public short BedroomCount { get; set; }
+        public short SleepingPlaces { get; set; }
+        public float Rating { get; set; }
+        public string Description { get; set; }
+        public float Square { get; set; }
+        public DateTime PostDate { get; set; }
 
-        public int UserID { get; private set; }
+        public string City { get; set; }
+        public string District { get; set; }
+        public string Street { get; set; }
+        public short StreetNumber { get; set; }
+        public short FloorNumber { get; set; }
+
+        public int UserID { get; set; }
+
+        public Apartment GetApartment(Apartment a)
+        {
+            if (Title != null && Title.Length > 0)
+                a.ApartmentId = ApartmentId;
+
+            if (Type != null)
+                a.Type = Type;
+
+            a.Price = Price;
+            a.BedroomCount = BedroomCount;
+            a.SleepingPlaces = SleepingPlaces;
+            a.Square = Square;
+            a.Title = Title;
+            a.Rating = Rating;
+            a.Description = Description;
+            a.City = City;
+            a.District = District;
+            a.Street = Street;
+            a.StreetNumber = StreetNumber;
+            a.FloorNumber = FloorNumber;
+            a.UserID = UserID;
+
+            return a;
+        }
+
+        public Apartment GetApartment(ApartmentCard a)
+        {
+            var apartment = new Apartment();
+
+            apartment.ApartmentId = ApartmentId;
+            apartment.Type = Type;
+            apartment.Price = Price;
+            apartment.BedroomCount = BedroomCount;
+            apartment.SleepingPlaces = SleepingPlaces;
+            apartment.Square = Square;
+            apartment.Title = Title;
+            apartment.Rating = Rating;
+            apartment.Description = Description;
+            apartment.City = City;
+            apartment.District = District;
+            apartment.Street = Street;
+            apartment.StreetNumber = StreetNumber;
+            apartment.FloorNumber = FloorNumber;
+            apartment.UserID = UserID;
+
+            return apartment;
+        }
     }
 }

@@ -1,5 +1,7 @@
 packages/
 OrangeApartments/bin/
+OrangeApartments/App_Data/Img/Apartments/
+OrangeApartments/App_Data/Img/Users/
 OrangeApartments/obj/
 OrangeApartments/packages/
 OrangeApartments/publish/
