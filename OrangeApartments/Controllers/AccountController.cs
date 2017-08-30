@@ -30,7 +30,7 @@ namespace OrangeApartments.Controllers
 
         [Route("login")]
         [HttpPost]
-        public HttpResponseMessage Login([FromBody]User model)
+        public HttpResponseMessage Login([FromBody]LoginMode)
         {
 
             var ecryptedPassword = Encrypt(model.Password);
@@ -41,6 +41,7 @@ namespace OrangeApartments.Controllers
             }
             return Request.CreateResponse(HttpStatusCode.OK, SessionHelper.CreateSession(user.UserId));
         }
+
 
         [Route("register")]
         [HttpPost]

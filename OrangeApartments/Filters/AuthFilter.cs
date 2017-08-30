@@ -35,6 +35,7 @@ namespace OrangeApartments.Filters
                     StatusCode = HttpStatusCode.BadRequest
                 };
                 actionContext.Response = response;
+                return;
             }
 
             var accessTokenValues = actionContext.Request.Headers.GetValues("Token");
@@ -56,7 +57,7 @@ namespace OrangeApartments.Filters
                         StatusCode = HttpStatusCode.Unauthorized
                     };
                     actionContext.Response = response;
-
+                    return;
                 }
             }
             else
@@ -68,6 +69,7 @@ namespace OrangeApartments.Filters
                     StatusCode = HttpStatusCode.Unauthorized
                 };
                 actionContext.Response = response;
+                return;
             }
 
             base.OnActionExecuting(actionContext);

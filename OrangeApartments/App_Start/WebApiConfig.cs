@@ -33,7 +33,6 @@ namespace OrangeApartments
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            config.Filters.Add(new AuthFilter());
         }
     }
 }
