@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
 using System.Net.Http.Headers;
+using System.Data.Entity.Core.Objects;
+using System.Linq.Expressions;
+using System.Text;
 
 namespace OrangeApartments.Controllers
 {
@@ -25,10 +28,17 @@ namespace OrangeApartments.Controllers
             _uof = uof;
         }
 
-        //public IEnumerable<ApartmentCard> Get()
-        //{
+        [Route("api/apartment")]
+        public IEnumerable<ApartmentCard> Get(string city = "", string district = "", string street = "", string sortBy = "price", int page = 0)
+        {
+            // Search expression
+            Expression<Func<Apartment, bool>> er = (arg) =>
+                                ((city == "") ? arg.City != null : arg.City == city)
+                                && ((district != "") ? arg.District == district : arg.District != null)
+                                && ((street != "") ? arg.Street == street : arg.Street != null);
 
-        //}
+            return _uof.Apartments.GetApartmentsPaging(er, sortBy, page);
+        }
 
         // GET: api/Apartment/5
         [Route("api/apartment/{apartmentId}")]
@@ -46,6 +56,29 @@ namespace OrangeApartments.Controllers
         {
             var filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
             string[] images = Directory.GetFiles(filePath, apartmentId.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
+
+            // Return default image if no images are stored for current apartment
+            // and if image with index 0 requested
+            if (imageIndex == 0)
+            {
+                if (images.Length == 0)
+                {
+                    string fileName = string.Format("{0}{1}.jpg", System.Web.Hosting.HostingEnvironment.MapPath(@"~/App_Data/Img/"), "dafault-apartment");
+                    if (!File.Exists(fileName))
+                        throw new HttpResponseException(HttpStatusCode.NotFound);
+                    
+                    FileStream fileStream = File.OpenRead(fileName);
+                    HttpResponseMessage response = new HttpResponseMessage
+                    {
+                        Content = new StreamContent(fileStream),
+                        StatusCode = HttpStatusCode.OK
+                    };
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                    response.Content.Headers.ContentLength = fileStream.Length;
+                    return response;
+                }
+            }
+
             if ((images.Length > 0) && (imageIndex < images.Length))
                 if (File.Exists(images[imageIndex]))
                 {
@@ -75,79 +108,89 @@ namespace OrangeApartments.Controllers
         // TODO Make file to store image hashesh for fater method execution
         // POST: api/Apartment/5/SaveImg
         [Route("api/apartment/{apartmentId}/SaveImg")]
-        public HttpResponseMessage PostImage(int apartmentId)
+        public async Task<HttpResponseMessage> PostImage(int apartmentId)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
+            // Check if the request contains multipart/form-data. 
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            }
 
-            if (_uof.Apartments.GetApartmentDetailedById(apartmentId) == null)
-                return Request.CreateResponse(HttpStatusCode.PreconditionFailed);
-
+            string tmpFileRoot = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/tmp");
+            var provider = new MultipartFormDataStreamProvider(tmpFileRoot);
+            
             try
             {
-                var httpRequest = HttpContext.Current.Request;
+                StringBuilder sb = new StringBuilder(); // Holds the response body 
+                await Request.Content.ReadAsMultipartAsync(provider);
 
-                foreach (string file in httpRequest.Files)
+                IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".gif", ".png" };
+                foreach (var file in provider.FileData)
                 {
-                    HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
+                    FileInfo fileInfo = new FileInfo(file.LocalFileName);
 
-                    var postedFile = httpRequest.Files[file];
-                    if (postedFile != null && postedFile.ContentLength > 0)
+                    var fileExt = file.Headers.ContentDisposition.FileName.Substring(file.Headers.ContentDisposition.FileName.LastIndexOf('.')).ToLower();
+                    fileExt = fileExt.Substring(0,fileExt.Length-1);
+                    if (fileInfo.Length > 5242880)
                     {
-                        int MaxContentLength = 1024 * 1024 * 5; //Size = 4 MB  
+                        fileInfo.Delete();
+                        sb.Append(string.Format("File: {0} size is to large. ({1} bytes)\n", file.Headers.ContentDisposition.FileName, fileInfo.Length));
+                    }
+                    else if(!AllowedFileExtensions.Contains(fileExt))             // verify file extension
+                    {
+                        fileInfo.Delete();
+                        sb.Append(string.Format("File: {0} has not alowed extension {1}. Please use: .jpg, .gif, .png.\n", file.Headers.ContentDisposition.FileName, fileExt));
+                    }
+                    else
+                    {
+                        var storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
+                        string[] files = Directory.GetFiles(storagePath, apartmentId.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
 
-                        IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".gif", ".png" };
-                        var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
-                        var extension = ext.ToLower();
-                        if (!AllowedFileExtensions.Contains(extension))             // verify file extension
+                        string posteFileHash;
+                        using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
                         {
-                            dict.Add("error", string.Format("Please Upload image of type .jpg, .gif, .png."));
-                            return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
+                            var tmp = File.OpenRead(file.LocalFileName);
+                            posteFileHash = Convert.ToBase64String(sha1.ComputeHash(tmp));
+                            tmp.Dispose();
                         }
-                        else if (postedFile.ContentLength > MaxContentLength)       // verify file length
-                        {
-                            dict.Add("error", string.Format("Please Upload a file upto 4 mb."));
-                            return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
-                        }
-                        else                                                       // only one img file per user allowed.
-                        {
-                            // check if user image already exists. If so - delete file to save new.
-                            var storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
-                            string[] files = Directory.GetFiles(storagePath, apartmentId.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
 
-                            string posteFileHash;
-                            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
-                                posteFileHash = Convert.ToBase64String(sha1.ComputeHash(postedFile.InputStream));
-
-                            bool fileAlreadyExsists = false;
-                            if (files.Length > 0)
-                                foreach (string tmpFile in files)
+                        bool fileAlreadyExsists = false;
+                        if (files.Length > 0)
+                            foreach (string tmpFile in files)
+                            {
+                                string localFileHash;
+                                using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
                                 {
-                                    string localFileHash;
-                                    using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
-                                        localFileHash = Convert.ToBase64String(sha1.ComputeHash(File.OpenRead(tmpFile)));
-
-                                    if (localFileHash == posteFileHash)
-                                        fileAlreadyExsists = true;
+                                    var tmp = File.OpenRead(tmpFile);
+                                    localFileHash = Convert.ToBase64String(sha1.ComputeHash(tmp));
+                                    tmp.Dispose();
                                 }
 
-                            if (fileAlreadyExsists == false)
-                            {
-                                storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/" + apartmentId.ToString() + "_" + DateTime.Now.ToFileTime().ToString() + extension);
-                                postedFile.SaveAs(storagePath);
+                                if (localFileHash == posteFileHash)
+                                    fileAlreadyExsists = true;
                             }
+
+                        if (fileAlreadyExsists == false)
+                        {
+                            storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/" + apartmentId.ToString() + "_" + DateTime.Now.ToFileTime().ToString() + fileExt);
+                            File.Move(file.LocalFileName, storagePath);
+                        }
+                        else
+                        {
+                            fileInfo.Delete();
                         }
                     }
                 }
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent(sb.ToString())
+                };
             }
-            catch (Exception ex)
+            catch (System.Exception e)
             {
-                dict.Add("error", string.Format("Error during Image Uploading"));
-                return Request.CreateResponse(HttpStatusCode.NotFound, dict);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
-
         }
-
 
         // POST: api/Apartment
         [Route("api/apartment")]

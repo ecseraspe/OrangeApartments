@@ -38,11 +38,11 @@ namespace OrangeApartments.Controllers
         [HttpGet]
         [Route("api/user/{userId}/GetUserImg")]
         public HttpResponseMessage GetUserImg(int userId)
-        {   
+        {
             string fileName = string.Format("{0}{1}.png", System.Web.Hosting.HostingEnvironment.MapPath(@"~/App_Data/Img/Users/"), userId.ToString());
             if (!File.Exists(fileName))
             {
-                fileName = string.Format("{0}{1}.png", System.Web.Hosting.HostingEnvironment.MapPath(@"~/App_Data/Img/Users/"), "default-user");
+                fileName = string.Format("{0}{1}.png", System.Web.Hosting.HostingEnvironment.MapPath(@"~/App_Data/Img/"), "default-user");
                 if (!File.Exists(fileName))
                     throw new HttpResponseException(HttpStatusCode.NotFound);
             }

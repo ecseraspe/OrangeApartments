@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OrangeApartments.Core.Domain.DTO;
 using System.Linq.Expressions;
+using System.Linq.Dynamic;
 using System.Data.Entity;
 
 namespace OrangeApartments.Persistence.Repository
@@ -58,12 +59,15 @@ namespace OrangeApartments.Persistence.Repository
         /// <param name="page">Paging starts from 0</param>
         /// <param name="page_size">number of elements to send</param>
         /// <returns></returns>
-        public IEnumerable<ApartmentCard> GetApartmentsPaging(Expression<Func<Apartment, bool>> predicate, int page, int page_size)
+        public IEnumerable<ApartmentCard> GetApartmentsPaging(Expression<Func<Apartment, bool>> predicate, string sortBy = "Price", int page = 0)
         {
-            return Find(predicate)
-                .Skip(page * page_size)
-                .Take(page_size)
-                .Select(x => new ApartmentCard(x));
+            var res = Find(predicate)
+                .OrderBy(sortBy)
+                .Skip(page * 5).Take(5)
+                .Select(x => new ApartmentCard(x))
+                .ToList();
+
+            return res;
         }
 
         /// <summary>
@@ -92,6 +96,8 @@ namespace OrangeApartments.Persistence.Repository
 
             return apartmentData;
         }
+
+        
         /// <summary>
         /// Enables acces to other db tables.
         /// </summary>
