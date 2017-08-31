@@ -29,25 +29,45 @@ namespace OrangeApartments.Controllers
         }
 
         [Route("api/apartment")]
-        public IEnumerable<ApartmentCard> Get(string city = "", string district = "", string street = "", string sortBy = "price", int page = 0)
+        public HttpResponseMessage Get(string city = "", string district = "", string street = "", string sortBy = "price", int page = 0)
         {
-            // Search expression
-            Expression<Func<Apartment, bool>> er = (arg) =>
-                                ((city == "") ? arg.City != null : arg.City == city)
-                                && ((district != "") ? arg.District == district : arg.District != null)
-                                && ((street != "") ? arg.Street == street : arg.Street != null);
+            try
+            {
+                // Search expression
+                Expression<Func<Apartment, bool>> er = (arg) =>
+                                    ((city == "") ? arg.City != null : arg.City == city)
+                                    && ((district != "") ? arg.District == district : arg.District != null)
+                                    && ((street != "") ? arg.Street == street : arg.Street != null);
 
-            return _uof.Apartments.GetApartmentsPaging(er, sortBy, page);
+                var apartmentList = _uof.Apartments.GetApartmentsPaging(er, sortBy, page);
+
+                return Request.CreateResponse(HttpStatusCode.OK, apartmentList);
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error occured during search operation");
+            }
         }
 
         // GET: api/Apartment/5
         [Route("api/apartment/{apartmentId}")]
-        public ApartmentCard Get(int apartmentId)
+        public HttpResponseMessage Get(int apartmentId)
         {
-            using (_uof)
+            try
             {
-                return _uof.Apartments.GetApartmentDetailedById(apartmentId);
+                var apartment = _uof.Apartments.GetApartmentDetailedById(apartmentId);
+
+                if (apartment == null)
+                    return Request.CreateResponse(HttpStatusCode.NoContent, "Apartment not found");
+
+                return Request.CreateResponse(HttpStatusCode.OK, apartment);
             }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error during apartment search");
+            }
+
         }
 
         // GET: api/Apartment/5/img/0
@@ -186,45 +206,98 @@ namespace OrangeApartments.Controllers
                     Content = new StringContent(sb.ToString())
                 };
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
         }
 
+        [Route("api/apartment/{id}/delImage/{imgId}")]
+        public HttpResponseMessage DeleteImage(int id, int imgId)
+        {
+            try
+            {
+                var storagePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
+                string[] files = Directory.GetFiles(storagePath, id.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
+
+                // image exsists -> delte it
+                if (files.Length > 0 &&  imgId < files.Length)
+                {
+                    File.Delete(files[imgId]);
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Image not found");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during image delete process");
+            }
+        }
+
+
         // POST: api/Apartment
         [Route("api/apartment")]
-        public void Post([FromBody]ApartmentCard apart)
+        public HttpResponseMessage Post([FromBody]ApartmentCard apart)
         {
-            using (_uof)
+            try
             {
-                _uof.Apartments.Add(apart.GetApartment(apart));
+                var apartment = apart.GetApartment(apart);
+                if (!ModelState.IsValid)
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Model is not valid");
+
+                _uof.Apartments.Add(apartment);
                 _uof.SaveChanges();
+
+                var message = Request.CreateResponse(HttpStatusCode.Created, new ApartmentCard(apartment));
+                message.Headers.Location = new Uri(Request.RequestUri + apartment.ApartmentId.ToString());
+                return message;
             }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error during new apartment post process");
+            }
+
         }
 
         // PUT: api/Apartment/5
         [Route("api/apartment/{id}")]
-        public void Put(int id, [FromBody]Apartment value)
+        public HttpResponseMessage Put(int id, [FromBody]ApartmentCard value)
         {
-            using (_uof)
+            try
             {
-                var apart = _uof.Apartments.Get(id);
-                apart = value;
+                var apartment = _uof.Apartments.Get(id);
+                if (apartment == null)
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Apartment was not found");
+
+                apartment = value.GetApartment(apartment);
                 _uof.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, value);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during apartment update process");
             }
         }
 
         // DELETE: api/Apartment/5
-        public void Delete(int id)
+        [Route("api/apartment/{id}")]
+        public HttpResponseMessage Delete(int id)
         {
-            using (_uof)
+            try
             {
                 var apartment = _uof.Apartments.Get(id);
                 if (apartment == null)
-                    return;
+                    Request.CreateErrorResponse(HttpStatusCode.NotFound, "Apartment not found");
 
                 _uof.Apartments.Remove(apartment);
+                _uof.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during apartment delete process");
             }
         }
     }

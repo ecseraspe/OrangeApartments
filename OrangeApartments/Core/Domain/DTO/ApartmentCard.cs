@@ -53,18 +53,12 @@ namespace OrangeApartments.Core.Domain.DTO
 
         public Apartment GetApartment(Apartment a)
         {
-            if (Title != null && Title.Length > 0)
-                a.ApartmentId = ApartmentId;
-
-            if (Type != null)
-                a.Type = Type;
-
+            a.ApartmentId = ApartmentId;
             a.Price = Price;
             a.BedroomCount = BedroomCount;
             a.SleepingPlaces = SleepingPlaces;
             a.Square = Square;
             a.Title = Title;
-            a.Rating = Rating;
             a.Description = Description;
             a.City = City;
             a.District = District;
@@ -87,7 +81,6 @@ namespace OrangeApartments.Core.Domain.DTO
             apartment.SleepingPlaces = SleepingPlaces;
             apartment.Square = Square;
             apartment.Title = Title;
-            apartment.Rating = Rating;
             apartment.Description = Description;
             apartment.City = City;
             apartment.District = District;
