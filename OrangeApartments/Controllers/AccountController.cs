@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Web.Http.Cors;
 using OrangeApartments.Core;
 using OrangeApartments.Core.Domain;
 using OrangeApartments.Filters;
@@ -17,7 +18,7 @@ using OrangeApartments.Models;
 
 namespace OrangeApartments.Controllers
 {
-
+    //[EnableCors("*", "*", "*")]
     [RoutePrefix("api/account")]
     public class AccountController : ApiController
     {
@@ -30,11 +31,12 @@ namespace OrangeApartments.Controllers
 
         [Route("login")]
         [HttpPost]
-        public HttpResponseMessage Login([FromBody]LoginMode)
+        public HttpResponseMessage Login([FromBody]LoginModel model)
         {
-
+            var r = RequestContext;
+            var r2 = Request;
             var ecryptedPassword = Encrypt(model.Password);
-            User user = _unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Mail && u.Password == ecryptedPassword);
+            User user = _unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email && u.Password == ecryptedPassword);
             if (user == null)
             {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
@@ -73,7 +75,7 @@ namespace OrangeApartments.Controllers
         }
 
         [AuthFilter]
-        [Route("user-info")]
+        [Route("userinfo")]
         [HttpGet]
         public User GetCurrentUserInfo()
         {
