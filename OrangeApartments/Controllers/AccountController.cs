@@ -33,8 +33,6 @@ namespace OrangeApartments.Controllers
         [HttpPost]
         public HttpResponseMessage Login([FromBody]LoginModel model)
         {
-            var r = RequestContext;
-            var r2 = Request;
             var ecryptedPassword = Encrypt(model.Password);
             User user = _unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email && u.Password == ecryptedPassword);
             if (user == null)
