@@ -15,6 +15,12 @@ namespace OrangeApartments.Persistence.Repository
         {
         }
 
+        public IEnumerable<Tag> GetAllTags()
+        {
+            var tags = GetAll();
+            return tags;
+        }
+
         public ApartmentContext ApartmentContext
         {
             get { return Context as ApartmentContext; }
