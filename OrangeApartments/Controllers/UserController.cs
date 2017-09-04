@@ -12,9 +12,12 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using OrangeApartments.Filters;
+using OrangeApartments.Core.Domain.DTO;
 
 namespace OrangeApartments.Controllers
 {
+    [AuthFilter]
     public class UserController : ApiController
     {
         private IUnitOfWork _uof;
@@ -24,20 +27,23 @@ namespace OrangeApartments.Controllers
             _uof = uof;
         }
 
-        // GET: api/user/{id}/GetUser
+        // GET: api/user/{id}
         [HttpGet]
-        [Route("api/user/{userId}/GetUser")]
-        public User GetUserDetails(int userId)
+        [Route("api/user/{userId}")]
+        public HttpResponseMessage Get(int userId)
         {
-            using (_uof)
-                return _uof.Users.Get(userId);
+            var user = new UserDTO(_uof.Users.Get(userId));
+            if (user == null)
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "User not found");
+
+            return Request.CreateResponse(HttpStatusCode.OK, user);
         }
 
         // GET: api/User/{id}/GetUserImg
         //public User Get(int id)
         [HttpGet]
-        [Route("api/user/{userId}/GetUserImg")]
-        public HttpResponseMessage GetUserImg(int userId)
+        [Route("api/user/{userId}/GetImg")]
+        public HttpResponseMessage GetImg(int userId)
         {
             string fileName = string.Format("{0}{1}.png", System.Web.Hosting.HostingEnvironment.MapPath(@"~/App_Data/Img/Users/"), userId.ToString());
             if (!File.Exists(fileName))
@@ -54,20 +60,9 @@ namespace OrangeApartments.Controllers
             return response;
         }
 
-        //POST: api/User/{user}
-        [HttpPost]
-        public void Post([FromBody] User user)
-        {
-            using (_uof)
-            {
-                _uof.Users.Add(user);
-                _uof.SaveChanges();
-            }
-        }
-
         [Route("api/user/{userId}/SaveImg")]
         [HttpPost]
-        public HttpResponseMessage SaveUserImage(int userId)
+        public HttpResponseMessage SaveImage(int userId)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
 
@@ -122,18 +117,59 @@ namespace OrangeApartments.Controllers
                 dict.Add("error", string.Format("Error during Image Uploading"));
                 return Request.CreateResponse(HttpStatusCode.NotFound, dict);
             }
+		}
+
+        // POST: api/User
+        [HttpPost]
+        [Route("api/user")]
+        public HttpResponseMessage Post([FromBody]User user)
+        {
+            try
+            {
+                _uof.Users.Add(user);
+                _uof.SaveChanges();
+
+                var message = Request.CreateResponse(HttpStatusCode.Created, user);
+                message.Headers.Location = new Uri(Request.RequestUri + user.UserId.ToString());
+
+                return message;
+            } catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during user save operation");
+            }
         }
 
         // PUT: api/User/5
-        public void Put(int id, [FromBody]User user)
+        [HttpPut]
+        [Route("api/user/{id}")]
+        public HttpResponseMessage Put(int id, [FromBody]User updatedUser)
         {
-            
+            try
+            {
+                var user = _uof.Users.SingleOrDefault(u => u.UserId == id);
+                if (user == null)
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "User not found");
+
+                user.Name = updatedUser.Name;
+                user.Phone = updatedUser.Phone;
+                _uof.Users.Update(user);
+                _uof.SaveChanges();
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during user save operation");
+            }
         }
 
         // DELETE: api/User/5
-        public void Delete(int id)
+        [HttpDelete]
+        public HttpResponseMessage Delete(int id)
         {
-
+            var user = _uof.Users.SingleOrDefault(usr => usr.UserId == id);
+            _uof.Users.Remove(user);
+            _uof.SaveChanges();
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
+
     }
 }

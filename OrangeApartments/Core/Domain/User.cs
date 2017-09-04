@@ -23,9 +23,7 @@ namespace OrangeApartments.Core.Domain
         }
 
         public int UserId { get; set; }
-        [MaxLength(50)]
         public string Name { get; set; }
-        [MaxLength(10), MinLength(10)]
         public string Phone { get; set; }
         public DateTime RegistrationDate { get; set; }
         [Required]

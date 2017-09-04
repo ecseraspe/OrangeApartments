@@ -46,6 +46,11 @@ namespace OrangeApartments.Persistence.Repository
             Context.Set<TEntity>().AddRange(entities);
         }
 
+        public void Update(TEntity entity)
+        {
+            Context.Entry(entity).State = EntityState.Modified;
+        }
+
         public void Remove(TEntity entity)
         {
             Context.Set<TEntity>().Remove(entity);

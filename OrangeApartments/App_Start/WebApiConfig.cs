@@ -9,6 +9,8 @@ using System.Data.Entity;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using OrangeApartments.Filters;
+
 
 namespace OrangeApartments
 {
@@ -16,13 +18,12 @@ namespace OrangeApartments
     {
         public static void Register(HttpConfiguration config)
         {
+
             // Web API configuration and services
             config.Formatters.JsonFormatter.SupportedMediaTypes
                 .Add(new MediaTypeHeaderValue("text/html"));
 
-            //enable CORS
-            var cors = new EnableCorsAttribute("*", "*", "*");
-            config.EnableCors(cors);
+            config.EnableCors(new EnableCorsAttribute("*", "*", "*"));
 
             // Web API routes
             config.MapHttpAttributeRoutes();
@@ -35,11 +36,13 @@ namespace OrangeApartments
             container.RegisterType<IUserRepository, UserRepository>();
             config.DependencyResolver = new IoC(container);
 
+
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
         }
     }
 }
