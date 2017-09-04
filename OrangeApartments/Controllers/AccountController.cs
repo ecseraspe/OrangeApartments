@@ -39,23 +39,23 @@ namespace OrangeApartments.Controllers
             User user = _unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email && u.Password == ecryptedPassword);
             if (user == null)
             {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid email address or password");
             }
-            return Request.CreateResponse(HttpStatusCode.OK, SessionHelper.CreateSession(user.UserId));
+            return Request.CreateResponse(HttpStatusCode.OK, SessionHelper.CreateSession(user.UserId)+"&"+user.Name+"&"+user.UserId);
         }
 
 
         [Route("register")]
         [HttpPost]
-        public IHttpActionResult Register([FromBody]RegisterModel model)
+        public HttpResponseMessage Register([FromBody]RegisterModel model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return Request.CreateResponse(BadRequest(ModelState));
             }
 
             if (_unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email) != null)
-                return BadRequest("This email address is already in use by another account");
+                return Request.CreateResponse(HttpStatusCode.BadRequest,"This email address is already in use by another account");
 
             _unitOfWork.Users.Add(new User()
             {
@@ -64,24 +64,24 @@ namespace OrangeApartments.Controllers
                 Mail = model.Email,
                 Phone = model.PhoneNumber,
                 IsAdmin = false,
-                Login = model.Email.Split('@')[0],
                 RegistrationDate = DateTime.Now
             });
 
 
             _unitOfWork.SaveChanges();
 
-            return Ok(new HttpResponseMessage(HttpStatusCode.Created));
+            return Request.CreateResponse(HttpStatusCode.Created,"User created");
         }
 
         [AuthFilter]
-        [Route("userinfo")]
+        [Route("user-info")]
         [HttpGet]
-        public User GetCurrentUserInfo()
+        public HttpResponseMessage GetCurrentUserInfo()
         {
             var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
             var currentUserId = SessionHelper.GetSession(accessTokenValue);
-            return _unitOfWork.Users.SingleOrDefault(u => u.UserId == currentUserId);
+            var user = _unitOfWork.Users.SingleOrDefault(u => u.UserId == currentUserId);
+            return Request.CreateResponse(HttpStatusCode.OK,user);
         }
 
         [AuthFilter]
@@ -97,6 +97,8 @@ namespace OrangeApartments.Controllers
             var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
             var currentUserId = SessionHelper.GetSession(accessTokenValue);
             var currentUser = _unitOfWork.Users.Get(currentUserId);
+            if (currentUser.Password != Encrypt(changePasswordModel.OldPassword))
+                return BadRequest("Invalid current password");
 
             currentUser.Password = Encrypt(changePasswordModel.NewPassword); 
             _unitOfWork.Users.Update(currentUser);
@@ -106,7 +108,7 @@ namespace OrangeApartments.Controllers
         }
 
         [AuthFilter]
-        [Route("change-pass")]
+        [Route("change-email")]
         [HttpPost]
         public IHttpActionResult ChangeEmail([FromBody]ChangeEmailModel changeEmailModel)
         {
@@ -118,7 +120,7 @@ namespace OrangeApartments.Controllers
             var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
             var currentUserId = SessionHelper.GetSession(accessTokenValue);
             var requestPassword = Encrypt(changeEmailModel.CurrentPassword);
-            var currentUser = _unitOfWork.Users.SingleOrDefault(u=>u.Password == requestPassword);
+            var currentUser = _unitOfWork.Users.SingleOrDefault(u=>u.Password == requestPassword && u.UserId == currentUserId);
 
             if (currentUser == null)
                 return BadRequest("Invalid password");

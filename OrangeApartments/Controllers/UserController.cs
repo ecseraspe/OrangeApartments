@@ -7,9 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using OrangeApartments.Filters;
 
 namespace OrangeApartments.Controllers
 {
+    [AuthFilter]
     public class UserController : ApiController
     {
         private IUnitOfWork _uof;
@@ -48,9 +50,11 @@ namespace OrangeApartments.Controllers
 
         // PUT: api/User/5
         [HttpPut]
-        public HttpResponseMessage ChangeUser(int id, [FromBody]User user)
+        public HttpResponseMessage UpdateUser(int id, [FromBody]User updatedUser)
         {
-            var date = user.RegistrationDate;
+            var user = _uof.Users.SingleOrDefault(u=>u.UserId == id);
+            user.Name = updatedUser.Name;
+            user.Phone = updatedUser.Phone;
             _uof.Users.Update(user);
             _uof.SaveChanges();
             return new HttpResponseMessage(HttpStatusCode.OK);
