@@ -158,6 +158,7 @@
     <Compile Include="Core\Domain\ApartmentComments.cs" />
     <Compile Include="Core\Domain\ApartmentTags.cs" />
     <Compile Include="Core\Domain\Chat.cs" />
+    <Compile Include="Core\Domain\Role.cs" />
     <Compile Include="Core\Domain\DTO\ApartmentCard.cs" />
     <Compile Include="Core\Domain\DTO\UserDTO.cs" />
     <Compile Include="Core\Domain\Tag.cs" />
@@ -180,25 +181,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\SessionHelper.cs" />
-    <Compile Include="Migrations\201708131924369_initial.cs" />
-    <Compile Include="Migrations\201708131924369_initial.Designer.cs">
-      <DependentUpon>201708131924369_initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708201833260_tmp.cs" />
-    <Compile Include="Migrations\201708201833260_tmp.Designer.cs">
-      <DependentUpon>201708201833260_tmp.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708212258273_OrangeMigration.cs" />
-    <Compile Include="Migrations\201708212258273_OrangeMigration.Designer.cs">
-      <DependentUpon>201708212258273_OrangeMigration.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708212312030_Orange2.cs" />
-    <Compile Include="Migrations\201708212312030_Orange2.Designer.cs">
-      <DependentUpon>201708212312030_Orange2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201708220001023_orange3.cs" />
-    <Compile Include="Migrations\201708220001023_orange3.Designer.cs">
-      <DependentUpon>201708220001023_orange3.cs</DependentUpon>
+    <Compile Include="Migrations\201709041300248_initial.cs" />
+    <Compile Include="Migrations\201709041300248_initial.Designer.cs">
+      <DependentUpon>201709041300248_initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Core\Domain\AccountBindingModels.cs" />
@@ -239,27 +224,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201708131924369_initial.resx">
-      <DependentUpon>201708131924369_initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708201833260_tmp.resx">
-      <DependentUpon>201708201833260_tmp.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201708212258273_OrangeMigration.resx">
-      <DependentUpon>201708212258273_OrangeMigration.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708212312030_Orange2.resx">
-      <DependentUpon>201708212312030_Orange2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708220001023_orange3.resx">
-      <DependentUpon>201708220001023_orange3.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="App_Data\Img\Apartments\" />
     <Folder Include="App_Data\Img\Users\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201709041300248_initial.resx">
+      <DependentUpon>201709041300248_initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

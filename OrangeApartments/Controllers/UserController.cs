@@ -17,7 +17,6 @@ using OrangeApartments.Core.Domain.DTO;
 
 namespace OrangeApartments.Controllers
 {
-    [AuthFilter]
     public class UserController : ApiController
     {
         private IUnitOfWork _uof;
@@ -118,58 +117,5 @@ namespace OrangeApartments.Controllers
                 return Request.CreateResponse(HttpStatusCode.NotFound, dict);
             }
 		}
-
-        // POST: api/User
-        [HttpPost]
-        [Route("api/user")]
-        public HttpResponseMessage Post([FromBody]User user)
-        {
-            try
-            {
-                _uof.Users.Add(user);
-                _uof.SaveChanges();
-
-                var message = Request.CreateResponse(HttpStatusCode.Created, user);
-                message.Headers.Location = new Uri(Request.RequestUri + user.UserId.ToString());
-
-                return message;
-            } catch (Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during user save operation");
-            }
-        }
-
-        // PUT: api/User/5
-        [HttpPut]
-        [Route("api/user/{id}")]
-        public HttpResponseMessage Put(int id, [FromBody]User updatedUser)
-        {
-            try
-            {
-                var user = _uof.Users.SingleOrDefault(u => u.UserId == id);
-                if (user == null)
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "User not found");
-
-                user.Name = updatedUser.Name;
-                user.Phone = updatedUser.Phone;
-                _uof.Users.Update(user);
-                _uof.SaveChanges();
-                return new HttpResponseMessage(HttpStatusCode.OK);
-            }catch(Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during user save operation");
-            }
-        }
-
-        // DELETE: api/User/5
-        [HttpDelete]
-        public HttpResponseMessage Delete(int id)
-        {
-            var user = _uof.Users.SingleOrDefault(usr => usr.UserId == id);
-            _uof.Users.Remove(user);
-            _uof.SaveChanges();
-            return new HttpResponseMessage(HttpStatusCode.OK);
-        }
-
     }
 }

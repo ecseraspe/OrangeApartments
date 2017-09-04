@@ -35,7 +35,7 @@ namespace OrangeApartments.Controllers
         	var r = RequestContext;
         	var r2 = Request;
             var ecryptedPassword = Encrypt(model.Password);
-            User user = _unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email && u.Password == ecryptedPassword);
+            User user = _unitOfWork.Users.SingleOrDefault(u => ((u.Mail == model.Email) && (u.Password == ecryptedPassword)));
             if (user == null)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid email address or password");
