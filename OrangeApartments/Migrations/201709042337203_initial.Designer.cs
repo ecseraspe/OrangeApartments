@@ -13,12 +13,12 @@ namespace OrangeApartments.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201709041300248_initial"; }
+            get { return "201709042337203_initial"; }
         }
         
         string IMigrationMetadata.Source
         {
-            get { return null; }
+            get { return Resources.GetString("Source"); }
         }
         
         string IMigrationMetadata.Target

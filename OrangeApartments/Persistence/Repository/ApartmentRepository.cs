@@ -59,15 +59,42 @@ namespace OrangeApartments.Persistence.Repository
         /// <param name="page">Paging starts from 0</param>
         /// <param name="page_size">number of elements to send</param>
         /// <returns></returns>
-        public IEnumerable<ApartmentCard> GetApartmentsPaging(Expression<Func<Apartment, bool>> predicate, string sortBy = "Price", int page = 0)
+        public IEnumerable<ApartmentCard> GetApartmentsPaging(Expression<Func<Apartment, bool>> predicate, string sortBy = "Price", int page = 0, string tags = "")
         {
-            var res = Find(predicate)
-                .OrderBy(sortBy)
-                .Skip(page * 5).Take(5)
-                .Select(x => new ApartmentCard(x))
-                .ToList();
+            if (tags == "")
+            {
+                return Find(predicate)
+                    .OrderBy(sortBy)
+                    .Skip(page * 5).Take(5)
+                    .Select(x => new ApartmentCard(x))
+                    .ToList();
+            }
+            else
+            {
+                string[] tagNames = tags.Split(';');
+                string item = tagNames[0];
+                var res = ApartmentContext.ApartmentTags.Where(s => s.Tag.TagName.Equals(item)).ToList();
 
-            return res;
+                List<ApartmentCard> apartmentList = new List<ApartmentCard>();
+                foreach (var a in res)
+                {
+                    bool containesAllTags = true;
+                    for (int i = 1; i < tagNames.Length; i++)
+                    {
+                        string tagName = tagNames[i];
+                        if (ApartmentContext.ApartmentTags.Where(x => x.ApartmentId == a.ApartmentId && x.Tag.TagName.Equals(tagName)).ToList().Count == 0)
+                        {
+                            containesAllTags = false;
+                            break;
+                        }
+                    }
+                    if (containesAllTags == true)
+                        if (apartmentList.FirstOrDefault(al => al.ApartmentId == a.ApartmentId) == null)
+                            apartmentList.Add(new ApartmentCard(Get(a.ApartmentId)));
+                }
+
+                return apartmentList;
+            }
         }
 
         /// <summary>
@@ -85,6 +112,12 @@ namespace OrangeApartments.Persistence.Repository
                 return null;
         }
 
+        /// <summary>
+        /// Updates apartment data
+        /// </summary>
+        /// <param name="apartmentId"></param>
+        /// <param name="apartmentData"></param>
+        /// <returns></returns>
         public ApartmentCard UpdateApartment(int apartmentId, ApartmentCard apartmentData)
         {
             var apartment = Get(apartmentId);

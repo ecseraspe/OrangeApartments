@@ -17,6 +17,7 @@ namespace OrangeApartments.Core.Domain.DTO
             BedroomCount = apartment.BedroomCount;
             SleepingPlaces = apartment.SleepingPlaces;
             Square = apartment.Square;
+            RentType = apartment.RentType;
             
             Title = apartment.Title;
             Rating = apartment.Rating;
@@ -41,6 +42,7 @@ namespace OrangeApartments.Core.Domain.DTO
         public float Rating { get; set; }
         public string Description { get; set; }
         public float Square { get; set; }
+        public short RentType { get; set; }
         public DateTime PostDate { get; set; }
 
         public string City { get; set; }
@@ -58,6 +60,7 @@ namespace OrangeApartments.Core.Domain.DTO
             a.BedroomCount = BedroomCount;
             a.SleepingPlaces = SleepingPlaces;
             a.Square = Square;
+            a.RentType = RentType;
             a.Title = Title;
             a.Description = Description;
             a.City = City;
@@ -88,6 +91,7 @@ namespace OrangeApartments.Core.Domain.DTO
             apartment.StreetNumber = StreetNumber;
             apartment.FloorNumber = FloorNumber;
             apartment.UserID = UserID;
+            apartment.RentType = RentType;
 
             return apartment;
         }

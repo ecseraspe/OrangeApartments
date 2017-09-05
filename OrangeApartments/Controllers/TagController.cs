@@ -1,7 +1,6 @@
 ﻿using OrangeApartments.Core;
 using OrangeApartments.Core.Domain;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -18,6 +17,10 @@ namespace OrangeApartments.Controllers
             this._uof = _uof;
         }
 
+        /// <summary>
+        /// Returnes list of tags available on server
+        /// </summary>
+        /// <returns></returns>
         // GET: api/Tag/getList
         [HttpGet]
         [Route("api/tag/getList")]
@@ -25,7 +28,7 @@ namespace OrangeApartments.Controllers
         {
             try
             {
-                var tags = _uof.Tags.GetAllTags();
+                var tags = _uof.Tags.GetAllTags().Select(x => new { tagname = x.TagName, isSelected = false });
                 if (tags.Count() == 0)
                     return Request.CreateResponse(HttpStatusCode.NotFound);
 
@@ -36,7 +39,13 @@ namespace OrangeApartments.Controllers
             }
         }
 
+        /// <summary>
+        /// Implements ability to add new tags
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         // POST: api/Tag
+        // TODO: only admin users should be able to do this
         [HttpPost]
         [Route("api/tag")]
         public HttpResponseMessage Post([FromBody]string value)
@@ -84,7 +93,13 @@ namespace OrangeApartments.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete tag
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/Tag/5
+        // TODO: only admin should be able to do this.
         [HttpDelete]
         [Route("api/tag/{id}")]
         public HttpResponseMessage Delete(int id)

@@ -9,8 +9,6 @@ using System.Data.Entity;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
-using OrangeApartments.Filters;
-
 
 namespace OrangeApartments
 {
@@ -23,11 +21,14 @@ namespace OrangeApartments
             config.Formatters.JsonFormatter.SupportedMediaTypes
                 .Add(new MediaTypeHeaderValue("text/html"));
 
+            // Enable Cross-Origin-Requests
             config.EnableCors(new EnableCorsAttribute("*", "*", "*"));
 
             // Web API routes
             config.MapHttpAttributeRoutes();
 
+            // Custom DB initializer
+            // Do not remove.
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<ApartmentContext, Configuration>());
 
             // IoC

@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
 using System.Net.Http.Headers;
-using System.Data.Entity.Core.Objects;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -28,8 +27,23 @@ namespace OrangeApartments.Controllers
             _uof = uof;
         }
 
+
+        /// <summary>
+        /// Search apartments handler.
+        /// 
+        /// Sort order - descending
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <param name="city"></param>
+        /// <param name="district"></param>
+        /// <param name="street"></param>
+        /// <param name="sortBy"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        // GET: api/apartment?
+        // TODO: implement ascending/descending sorting order
         [Route("api/apartment")]
-        public HttpResponseMessage Get(string city = "", string district = "", string street = "", string sortBy = "price", int page = 0)
+        public HttpResponseMessage Get(string tags = "", string city = "", string district = "", string street = "", string sortBy = "price", int page = 0)
         {
             try
             {
@@ -39,10 +53,11 @@ namespace OrangeApartments.Controllers
                                     && ((district != "") ? arg.District == district : arg.District != null)
                                     && ((street != "") ? arg.Street == street : arg.Street != null);
 
-                var apartmentList = _uof.Apartments.GetApartmentsPaging(er, sortBy, page);
+                sortBy += " descending";
+
+                var apartmentList = _uof.Apartments.GetApartmentsPaging(er, sortBy, page, tags);
 
                 return Request.CreateResponse(HttpStatusCode.OK, apartmentList);
-
             }
             catch (Exception ex)
             {
@@ -50,6 +65,14 @@ namespace OrangeApartments.Controllers
             }
         }
 
+        /// <summary>
+        /// Returnes apartment data.
+        /// 
+        /// DTO is used in this controllder.
+        /// DTO name: ApartmentCard
+        /// </summary>
+        /// <param name="apartmentId"></param>
+        /// <returns></returns>
         // GET: api/Apartment/5
         [Route("api/apartment/{apartmentId}")]
         public HttpResponseMessage Get(int apartmentId)
@@ -70,6 +93,106 @@ namespace OrangeApartments.Controllers
 
         }
 
+        /// <summary>
+        /// Adds new apartment to db.
+        /// 
+        /// DTO is used as input parameter to disable some fields modification.
+        /// </summary>
+        /// <param name="apart"></param>
+        /// <returns></returns>
+        // POST: api/Apartment
+        [Route("api/apartment")]
+        public HttpResponseMessage Post([FromBody]ApartmentCard apart)
+        {
+            try
+            {
+                var apartment = apart.GetApartment(apart);
+                if (!ModelState.IsValid)
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Model is not valid");
+
+                _uof.Apartments.Add(apartment);
+                _uof.SaveChanges();
+
+                var message = Request.CreateResponse(HttpStatusCode.Created, new ApartmentCard(apartment));
+                message.Headers.Location = new Uri(Request.RequestUri + apartment.ApartmentId.ToString());
+                return message;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error during new apartment post process");
+            }
+
+        }
+
+        /// <summary>
+        /// Update apartment data
+        /// 
+        /// DTO is used to mask fields that user cant change.
+        /// DTO class: ApartmentCard
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        // PUT: api/Apartment/5
+        [Route("api/apartment/{id}")]
+        public HttpResponseMessage Put(int id, [FromBody]ApartmentCard value)
+        {
+            try
+            {
+                var apartment = _uof.Apartments.Get(id);
+                if (apartment == null)
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Apartment was not found");
+
+                apartment = value.GetApartment(apartment);
+                _uof.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, value);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during apartment update process");
+            }
+        }
+
+        /// <summary>
+        /// Delete apartment from DB
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        // DELETE: api/Apartment/5
+        [Route("api/apartment/{id}")]
+        public HttpResponseMessage Delete(int id)
+        {
+            try
+            {
+                var apartment = _uof.Apartments.Get(id);
+                if (apartment == null)
+                    Request.CreateErrorResponse(HttpStatusCode.NotFound, "Apartment not found");
+
+                _uof.Apartments.Remove(apartment);
+                _uof.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during apartment delete process");
+            }
+        }
+        /// <summary>
+        /// Returnes image of apartment
+        /// ApartmentId and ImageIndex are input parameters
+        /// 
+        /// Saves Appartment images if App_Data/Img/Apartments folder
+        /// Image naming convention: apartmentId_DateTime.extension
+        /// 
+        /// Default image is returned if no images stored for apartment.
+        /// Default image should be named : apartment-default.
+        /// Default image location: App_Data/Img/
+        /// 
+        /// </summary>
+        /// <param name="apartmentId"></param>
+        /// <param name="imageIndex"></param>
+        /// <returns></returns>
         // GET: api/Apartment/5/img/0
         [Route("api/apartment/{apartmentId}/img/{imageIndex}")]
         public HttpResponseMessage GetApartmentImage(int apartmentId, int imageIndex)
@@ -86,7 +209,7 @@ namespace OrangeApartments.Controllers
                     string fileName = string.Format("{0}{1}.jpg", System.Web.Hosting.HostingEnvironment.MapPath(@"~/App_Data/Img/"), "dafault-apartment");
                     if (!File.Exists(fileName))
                         throw new HttpResponseException(HttpStatusCode.NotFound);
-                    
+
                     FileStream fileStream = File.OpenRead(fileName);
                     HttpResponseMessage response = new HttpResponseMessage
                     {
@@ -114,6 +237,30 @@ namespace OrangeApartments.Controllers
                 }
 
             return Request.CreateResponse(HttpStatusCode.NotFound);
+        }
+
+        /// <summary>
+        /// Returnes number of stored images for apartment
+        /// 
+        /// If no images stored by user, than 0 is returned.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        // GET: api/apartment/5/imagecount
+        [Route("api/apartment/{id}/imageCount")]
+        public HttpResponseMessage GetImageCount(int id)
+        {
+            try
+            {
+                var filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Apartments/");
+                string[] images = Directory.GetFiles(filePath, id.ToString() + "_*.*", SearchOption.TopDirectoryOnly);
+
+                return Request.CreateResponse(HttpStatusCode.OK, images.Count());
+
+            } catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
         }
 
         /// <summary>
@@ -212,6 +359,13 @@ namespace OrangeApartments.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes image stored by user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="imgId"></param>
+        /// <returns></returns>
+        // DELETE: api/apartment/4/delimage/3
         [Route("api/apartment/{id}/delImage/{imgId}")]
         public HttpResponseMessage DeleteImage(int id, int imgId)
         {
@@ -232,72 +386,6 @@ namespace OrangeApartments.Controllers
             catch (Exception ex)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during image delete process");
-            }
-        }
-
-
-        // POST: api/Apartment
-        [Route("api/apartment")]
-        public HttpResponseMessage Post([FromBody]ApartmentCard apart)
-        {
-            try
-            {
-                var apartment = apart.GetApartment(apart);
-                if (!ModelState.IsValid)
-                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Model is not valid");
-
-                _uof.Apartments.Add(apartment);
-                _uof.SaveChanges();
-
-                var message = Request.CreateResponse(HttpStatusCode.Created, new ApartmentCard(apartment));
-                message.Headers.Location = new Uri(Request.RequestUri + apartment.ApartmentId.ToString());
-                return message;
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error during new apartment post process");
-            }
-
-        }
-
-        // PUT: api/Apartment/5
-        [Route("api/apartment/{id}")]
-        public HttpResponseMessage Put(int id, [FromBody]ApartmentCard value)
-        {
-            try
-            {
-                var apartment = _uof.Apartments.Get(id);
-                if (apartment == null)
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Apartment was not found");
-
-                apartment = value.GetApartment(apartment);
-                _uof.SaveChanges();
-
-                return Request.CreateResponse(HttpStatusCode.OK, value);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during apartment update process");
-            }
-        }
-
-        // DELETE: api/Apartment/5
-        [Route("api/apartment/{id}")]
-        public HttpResponseMessage Delete(int id)
-        {
-            try
-            {
-                var apartment = _uof.Apartments.Get(id);
-                if (apartment == null)
-                    Request.CreateErrorResponse(HttpStatusCode.NotFound, "Apartment not found");
-
-                _uof.Apartments.Remove(apartment);
-                _uof.SaveChanges();
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch(Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during apartment delete process");
             }
         }
     }
