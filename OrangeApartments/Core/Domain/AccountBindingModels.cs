@@ -14,12 +14,14 @@ namespace OrangeApartments.Models
         public string Email { get; set; }
 
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [StringLength(20, MinimumLength = 2)]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; }
 
-        [DataType(DataType.PhoneNumber)]
-        [Display(Name = "Phone number")]
-        public string PhoneNumber { get; set; }
+        [Required]
+        [StringLength(30, MinimumLength = 2)]
+        [Display(Name = "Last name")]
+        public string LastName { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
@@ -33,6 +35,27 @@ namespace OrangeApartments.Models
         public string ConfirmPassword { get; set; }
     }
 
+    public class ChangePersonalInfoModel
+    {
+
+        [Required]
+        [StringLength(20, MinimumLength = 2)]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [StringLength(30, MinimumLength = 2)]
+        [Display(Name = "Last name")]
+        public string LastName { get; set; }
+
+        [DataType(DataType.PhoneNumber)]
+        [Display(Name = "Phone number")]
+        public string Phone { get; set; }
+
+        [Display(Name = "About me")]
+        public string AboutMe { get; set; }
+
+    }
     public class LoginModel
     {
         [Required]
@@ -60,6 +83,7 @@ namespace OrangeApartments.Models
         [Display(Name = "New password")]
         public string NewPassword { get; set; }
 
+        [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
@@ -79,6 +103,4 @@ namespace OrangeApartments.Models
         public string NewEmail { get; set; }
 
     }
-
-
 }

@@ -125,7 +125,7 @@ namespace OrangeApartments.Controllers
                             foreach (string tmpFile in files)
                                 File.Delete(tmpFile);
 
-                        filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Users/"+userId.ToString()+extension);
+                        filePath = HttpContext.Current.Server.MapPath("~/App_Data/Img/Users/"+userId.ToString()+".png");
                         postedFile.SaveAs(filePath);
                     }
                 }

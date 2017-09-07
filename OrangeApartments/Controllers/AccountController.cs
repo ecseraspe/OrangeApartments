@@ -32,15 +32,13 @@ namespace OrangeApartments.Controllers
         [HttpPost]
         public HttpResponseMessage Login([FromBody]LoginModel model)
         {
-        	var r = RequestContext;
-        	var r2 = Request;
             var ecryptedPassword = Encrypt(model.Password);
             User user = _unitOfWork.Users.SingleOrDefault(u => ((u.Mail == model.Email) && (u.Password == ecryptedPassword)));
             if (user == null)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid email address or password");
             }
-            return Request.CreateResponse(HttpStatusCode.OK, SessionHelper.CreateSession(user.UserId)+"&"+user.Name+"&"+user.UserId);
+            return Request.CreateResponse(HttpStatusCode.OK, SessionHelper.CreateSession(user.UserId) + "&" + user.FirstName + "&" + user.LastName + "&" + user.UserId);
         }
 
 
@@ -54,14 +52,14 @@ namespace OrangeApartments.Controllers
             }
 
             if (_unitOfWork.Users.SingleOrDefault(u => u.Mail == model.Email) != null)
-                return Request.CreateResponse(HttpStatusCode.BadRequest,"This email address is already in use by another account");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "This email address is already in use by another account");
 
             _unitOfWork.Users.Add(new User()
             {
-                Name = model.UserName,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 Password = Encrypt(model.Password),
                 Mail = model.Email,
-                Phone = model.PhoneNumber,
                 IsAdmin = false,
                 RegistrationDate = DateTime.Now
             });
@@ -69,71 +67,85 @@ namespace OrangeApartments.Controllers
 
             _unitOfWork.SaveChanges();
 
-            return Request.CreateResponse(HttpStatusCode.Created,"User created");
+            return Request.CreateResponse(HttpStatusCode.Created, "User created");
         }
 
-        [AuthFilter]
-        [Route("user-info")]
-        [HttpGet]
-        public HttpResponseMessage GetCurrentUserInfo()
-        {
-            var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
-            var currentUserId = SessionHelper.GetSession(accessTokenValue);
-            var user = _unitOfWork.Users.SingleOrDefault(u => u.UserId == currentUserId);
-            return Request.CreateResponse(HttpStatusCode.OK,user);
-        }
 
         [AuthFilter]
         [Route("change-pass")]
         [HttpPost]
-        public IHttpActionResult ChangePassword([FromBody]ChangePasswordModel changePasswordModel)
+        public HttpResponseMessage ChangePassword([FromBody]ChangePasswordModel changePasswordModel)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "All fields requared");
             }
 
             var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
             var currentUserId = SessionHelper.GetSession(accessTokenValue);
             var currentUser = _unitOfWork.Users.Get(currentUserId);
             if (currentUser.Password != Encrypt(changePasswordModel.OldPassword))
-                return BadRequest("Invalid current password");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid current password");
 
-            currentUser.Password = Encrypt(changePasswordModel.NewPassword); 
+            currentUser.Password = Encrypt(changePasswordModel.NewPassword);
             _unitOfWork.Users.Update(currentUser);
             _unitOfWork.SaveChanges();
 
-            return Ok();
+            return Request.CreateResponse(HttpStatusCode.OK, "Password successfully changed");
         }
 
         [AuthFilter]
         [Route("change-email")]
         [HttpPost]
-        public IHttpActionResult ChangeEmail([FromBody]ChangeEmailModel changeEmailModel)
+        public HttpResponseMessage ChangeEmail([FromBody]ChangeEmailModel changeEmailModel)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "All fields requared");
             }
 
             var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
             var currentUserId = SessionHelper.GetSession(accessTokenValue);
             var requestPassword = Encrypt(changeEmailModel.CurrentPassword);
-            var currentUser = _unitOfWork.Users.SingleOrDefault(u=>u.Password == requestPassword && u.UserId == currentUserId);
+            var currentUser = _unitOfWork.Users.SingleOrDefault(u => u.Password == requestPassword && u.UserId == currentUserId);
 
             if (currentUser == null)
-                return BadRequest("Invalid password");
-            
-            if(_unitOfWork.Users.SingleOrDefault(u=>u.Mail == changeEmailModel.NewEmail) != null)
-                return BadRequest("This email address is already in use by another account");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid password");
+
+            if (_unitOfWork.Users.SingleOrDefault(u => u.Mail == changeEmailModel.NewEmail) != null)
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "This email address is already in use by another account");
 
             currentUser.Mail = changeEmailModel.NewEmail;
             _unitOfWork.Users.Update(currentUser);
             _unitOfWork.SaveChanges();
 
-            return Ok();
+            return Request.CreateResponse(HttpStatusCode.OK, "Email successfully changed");
         }
 
+        [AuthFilter]
+        [Route("change-info/{id}")]
+        [HttpPut]
+        public HttpResponseMessage ChangePersonalInfo(int id, [FromBody] ChangePersonalInfoModel changePersonalInfoModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid email address or password");
+            }
+
+            var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
+            var currentUserId = SessionHelper.GetSession(accessTokenValue);
+            var currentUser = _unitOfWork.Users.SingleOrDefault(u => u.UserId == id);
+
+            currentUser.FirstName = changePersonalInfoModel.FirstName;
+            currentUser.LastName = changePersonalInfoModel.LastName;
+            currentUser.AboutMe = changePersonalInfoModel.AboutMe;
+            currentUser.Phone = changePersonalInfoModel.Phone;
+
+            _unitOfWork.Users.Update(currentUser);
+            _unitOfWork.SaveChanges();
+
+            return Request.CreateResponse(HttpStatusCode.OK, "Changes saved");
+        }
 
         [AuthFilter]
         [Route("logout")]
@@ -143,6 +155,7 @@ namespace OrangeApartments.Controllers
             SessionHelper.ClearAllSessions();
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
+
 
         private string Encrypt(string clearText)
         {

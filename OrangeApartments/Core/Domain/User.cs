@@ -23,17 +23,14 @@ namespace OrangeApartments.Core.Domain
         }
 
         public int UserId { get; set; }
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string Phone { get; set; }
         public DateTime RegistrationDate { get; set; }
-        [Required]
-        [MaxLength(50)]
-        [DataType(DataType.EmailAddress)]
-        [EmailAddress]
         public string Mail { get; set; }
         public bool IsAdmin { get; set; }
-        public string Login { get; set; }
         public string Password { get; set; }
+        public string AboutMe { get; set; }
 
         public virtual List<Apartment> Apartments { get; set; }
         public virtual List<ApartmentComments> ApartmentCommnets { get; set; }
