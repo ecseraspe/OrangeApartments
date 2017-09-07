@@ -1,32 +1,43 @@
 namespace OrangeApartments.Migrations
 {
-    using System;
-    using System.Data.Entity;
+    using OrangeApartments.Core.Domain;
     using System.Data.Entity.Migrations;
-    using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<OrangeApartments.Persistence.ApartmentContext>
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
-            AutomaticMigrationDataLossAllowed = true;
+            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationDataLossAllowed = false;
         }
 
         protected override void Seed(OrangeApartments.Persistence.ApartmentContext context)
         {
-            //  This method will be called after migrating to the latest version.
+            context.Users.AddOrUpdate(x => x.Mail, new User()
+            {
+                FirstName = "admin",
+                LastName = "admin",
+                IsAdmin = true,
+                Mail = "admin@admin.adim",
+                Password = "admin"
+            });
 
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+            Tag[] tagsList = new Tag[] {
+                            new Tag() { TagName = "Free WiFi" },
+                             new Tag() { TagName = "With children" },
+                             new Tag() { TagName = "No Pets" },
+                             new Tag() { TagName = "Without children" },
+                             new Tag() { TagName = "With Pets" },
+                             new Tag() { TagName = "Internet" },
+                             new Tag() { TagName = "Dryer" },
+                             new Tag() { TagName = "Air conditioning" },
+                             new Tag() { TagName = "Family amenities" },
+                             new Tag() { TagName = "Private entrance" },
+                             new Tag() { TagName = "Free parking" },
+                             new Tag() { TagName = "Iron" },
+                             new Tag() { TagName = "Laundy" } };
+            context.Tag.AddOrUpdate(x => x.TagName, tagsList);
+            context.SaveChanges();
         }
     }
 }

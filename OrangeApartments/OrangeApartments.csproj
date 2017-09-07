@@ -204,18 +204,13 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\SessionHelper.cs" />
-    <Compile Include="Migrations\201709061712452_initial.cs" />
-    <Compile Include="Migrations\201709061712452_initial.Designer.cs">
-      <DependentUpon>201709061712452_initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201709070003408_intial2.cs" />
-    <Compile Include="Migrations\201709070003408_intial2.Designer.cs">
-      <DependentUpon>201709070003408_intial2.cs</DependentUpon>
+    <Compile Include="Migrations\201709071855066_initial.cs" />
+    <Compile Include="Migrations\201709071855066_initial.Designer.cs">
+      <DependentUpon>201709071855066_initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Core\Domain\AccountBindingModels.cs" />
     <Compile Include="Persistence\ApartmentContext.cs" />
-    <Compile Include="Persistence\EFConfiguration\MyDbInitializer.cs" />
     <Compile Include="Persistence\Repository\ApartmentBookingRepository.cs" />
     <Compile Include="Persistence\Repository\ApartmentCommentsRepository.cs" />
     <Compile Include="Persistence\Repository\ApartmentRepository.cs" />
@@ -254,11 +249,8 @@
     <Folder Include="App_Data\Img\Apartments\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201709061712452_initial.resx">
-      <DependentUpon>201709061712452_initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201709070003408_intial2.resx">
-      <DependentUpon>201709070003408_intial2.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201709071855066_initial.resx">
+      <DependentUpon>201709071855066_initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
