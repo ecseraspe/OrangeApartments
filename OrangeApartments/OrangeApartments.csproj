@@ -27,6 +27,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -162,7 +163,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\Img\Users\default-user.png" />
     <Content Include="Global.asax" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -204,9 +204,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\SessionHelper.cs" />
-    <Compile Include="Migrations\201709071855066_initial.cs" />
-    <Compile Include="Migrations\201709071855066_initial.Designer.cs">
-      <DependentUpon>201709071855066_initial.cs</DependentUpon>
+    <Compile Include="Migrations\201709072307271_Initial.cs" />
+    <Compile Include="Migrations\201709072307271_Initial.Designer.cs">
+      <DependentUpon>201709072307271_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Core\Domain\AccountBindingModels.cs" />
@@ -234,6 +234,7 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\orangeapartmentswebapi.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -247,10 +248,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\Img\Apartments\" />
+    <Folder Include="App_Data\Img\Users\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201709071855066_initial.resx">
-      <DependentUpon>201709071855066_initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201709072307271_Initial.resx">
+      <DependentUpon>201709072307271_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
