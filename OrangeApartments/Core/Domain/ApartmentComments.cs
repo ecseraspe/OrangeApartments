@@ -15,6 +15,7 @@ namespace OrangeApartments.Core.Domain
         }
 
         public int ApartmentCommentsId { get; set; }
+        [Required]
         [MaxLength(500)]
         public string Comment { get; set; }
         public DateTime CommentDate { get; set; }

@@ -48,7 +48,7 @@ namespace OrangeApartments.Core.Domain.DTO
         public string City { get; set; }
         public string District { get; set; }
         public string Street { get; set; }
-        public short StreetNumber { get; set; }
+        public string StreetNumber { get; set; }
         public short FloorNumber { get; set; }
 
         public int UserID { get; set; }
@@ -80,13 +80,18 @@ namespace OrangeApartments.Core.Domain.DTO
             apartment.ApartmentId = ApartmentId;
             apartment.Type = Type;
             apartment.Price = Price;
-            apartment.BedroomCount = BedroomCount;
-            apartment.SleepingPlaces = SleepingPlaces;
-            apartment.Square = Square;
+            apartment.BedroomCount = BedroomCount == 0 ? (short)1 : BedroomCount;
+            apartment.SleepingPlaces = SleepingPlaces == 0 ? (short)1 : SleepingPlaces;
+            apartment.Square = Square < 5 ? 5 : Square ;
             apartment.Title = Title;
             apartment.Description = Description;
             apartment.City = City;
-            apartment.District = District;
+
+            if (District == null)
+                apartment.District = "";
+            else
+                apartment.District = District;
+
             apartment.Street = Street;
             apartment.StreetNumber = StreetNumber;
             apartment.FloorNumber = FloorNumber;

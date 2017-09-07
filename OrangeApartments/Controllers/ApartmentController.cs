@@ -14,6 +14,8 @@ using System.IO;
 using System.Net.Http.Headers;
 using System.Linq.Expressions;
 using System.Text;
+using OrangeApartments.Filters;
+using OrangeApartments.Helpers;
 
 namespace OrangeApartments.Controllers
 {
@@ -94,6 +96,70 @@ namespace OrangeApartments.Controllers
         }
 
         /// <summary>
+        /// Returnes detailed apartment data.
+        /// 
+        /// </summary>
+        /// <param name="apartmentId"></param>
+        /// <returns>
+        /// Apartment info
+        /// Apartment tags list
+        /// Apartment coments list
+        /// User who has posted apartment
+        /// </returns>
+        // GET: api/Apartment/5
+        [Route("api/apartment/{apartmentId}/detailed")]
+        public HttpResponseMessage GetDetailed(int apartmentId)
+        {
+            try
+            {
+                var apartment = _uof.Apartments.GetApartmentDetailedById(apartmentId);
+
+                if (apartment == null)
+                    return Request.CreateResponse(HttpStatusCode.NoContent, "Apartment not found");
+
+                var tags = _uof.Tags.GetTags(apartmentId);
+                var user = new UserDTO(_uof.Users.Get(apartment.UserID));
+                var coments = _uof.ApartmentComments.GetApartmentComents(apartmentId);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { apartment, tags, user, coments });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error during apartment search");
+            }
+
+        }
+
+        [AuthFilter]
+        [HttpPost]
+        [Route("api/apartment/addComent")]
+        public HttpResponseMessage AddComment([FromBody]ApartmentComments apart)
+        {
+            try
+            {
+                var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
+                var currentUserId = SessionHelper.GetSession(accessTokenValue);
+                var currentUser = _uof.Users.Get(currentUserId);
+
+                if (currentUser == null)
+                    return Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No such user");
+
+                if (!ModelState.IsValid)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ModelState);
+
+                _uof.ApartmentComments.AddComment(apart, currentUserId);
+                _uof.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, apart);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Operation can be finished");
+            }
+        }
+
+
+        /// <summary>
         /// Adds new apartment to db.
         /// 
         /// DTO is used as input parameter to disable some fields modification.
@@ -101,20 +167,26 @@ namespace OrangeApartments.Controllers
         /// <param name="apart"></param>
         /// <returns></returns>
         // POST: api/Apartment
+        [AuthFilter]
         [Route("api/apartment")]
         public HttpResponseMessage Post([FromBody]ApartmentCard apart)
         {
             try
             {
-                var apartment = apart.GetApartment(apart);
-                if (!ModelState.IsValid)
-                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Model is not valid");
+                var accessTokenValue = Request.Headers.GetValues("Token").FirstOrDefault();
+                var currentUserId = SessionHelper.GetSession(accessTokenValue);
+                var currentUser = _uof.Users.Get(currentUserId);
 
+                if (currentUser == null)
+                    return Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No such user");
+
+                apart.UserID = currentUserId;
+                var apartment = apart.GetApartment(apart);
                 _uof.Apartments.Add(apartment);
                 _uof.SaveChanges();
 
                 var message = Request.CreateResponse(HttpStatusCode.Created, new ApartmentCard(apartment));
-                message.Headers.Location = new Uri(Request.RequestUri + apartment.ApartmentId.ToString());
+                message.Headers.Location = new Uri(Request.RequestUri + "/" + apartment.ApartmentId.ToString());
                 return message;
             }
             catch (Exception ex)

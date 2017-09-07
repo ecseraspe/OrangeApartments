@@ -21,6 +21,12 @@ namespace OrangeApartments.Persistence.Repository
             return tags;
         }
 
+        public IEnumerable<Tag> GetTags(int apartmentId)
+        {
+            var tags = Find(x => x.ApartmentTags.Any(y => y.ApartmentId == apartmentId)).ToList();
+            return tags;
+        }
+
         public ApartmentContext ApartmentContext
         {
             get { return Context as ApartmentContext; }

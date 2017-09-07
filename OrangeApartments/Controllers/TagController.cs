@@ -40,6 +40,33 @@ namespace OrangeApartments.Controllers
         }
 
         /// <summary>
+        /// Returnes list of tags available on server
+        /// </summary>
+        /// <returns></returns>
+        // GET: api/Tag/getList
+        [HttpGet]
+        [Route("api/tag/{apartmentId}/get")]
+        public HttpResponseMessage GetApartmentTags(int apartmentId)
+        {
+            try
+            {
+                if (_uof.Apartments.Get(apartmentId) == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Apartment do not exsist");
+
+                var tags = _uof.Tags.GetTags(apartmentId).Select(x => new { tagname = x.TagName, isSelected = false });
+
+                if (tags.Count() == 0)
+                    return Request.CreateResponse(HttpStatusCode.NotFound);
+
+                return Request.CreateResponse(HttpStatusCode.OK, tags);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Error during get operation");
+            }
+        }
+
+        /// <summary>
         /// Implements ability to add new tags
         /// </summary>
         /// <param name="value"></param>

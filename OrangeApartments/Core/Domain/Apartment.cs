@@ -62,8 +62,7 @@ namespace OrangeApartments.Core.Domain
         public string Street { get; set; }
 
         [Required]
-        [Range((short)1, (short)2000)]
-        public short StreetNumber { get; set; }
+        public string StreetNumber { get; set; }
 
         [Range(1, 10000)]
         public short FloorNumber { get; set; }
