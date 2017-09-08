@@ -11,8 +11,8 @@ namespace OrangeApartments.Core.Domain
         {
             Apartments = new List<Apartment>();
             ApartmentCommnets = new List<ApartmentComments>();
-            UserCommnets = new List<UserComments>();
-            CommentedUsers = new List<UserComments>();
+            //UserCommnets = new List<UserComments>();
+            //CommentedUsers = new List<UserComments>();
             ChatAsSender = new List<Chat>();
             ChatAsReceiver = new List<Chat>();
             Bookings = new List<ApartmentBooking>();
@@ -35,13 +35,13 @@ namespace OrangeApartments.Core.Domain
         public virtual List<Apartment> Apartments { get; set; }
         public virtual List<ApartmentComments> ApartmentCommnets { get; set; }
 
-        // List of users whom this user wrote the comments
-        [InverseProperty("Commentator")]
-        public virtual ICollection<UserComments> UserCommnets { get; set; }
+        //List of users whom this user wrote the comments ----- users that I've commented
+        //[InverseProperty("Commentator")]
+        //public virtual ICollection<UserComments> UserCommnets { get; set; }
 
-        // Users who are commented by current user
-        [InverseProperty("CommentedUser")]
-        public virtual ICollection<UserComments> CommentedUsers { get; set; }
+        //Users who are commented by current user ------ user who commented me
+        //[InverseProperty("CommentedUser")]
+        //public virtual ICollection<UserComments> CommentedUsers { get; set; }
 
         [InverseProperty("Sender")]
         public virtual ICollection<Chat> ChatAsSender { get; set; }

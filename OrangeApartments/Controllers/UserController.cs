@@ -32,11 +32,15 @@ namespace OrangeApartments.Controllers
         [Route("api/user/{userId}")]
         public HttpResponseMessage Get(int userId)
         {
-            var user = new UserDTO(_uof.Users.Get(userId));
+
+            var user = _uof.Users.Get(userId);
             if (user == null)
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, "User not found");
+            
+            var userDto = new UserDTO(user);
 
-            return Request.CreateResponse(HttpStatusCode.OK, user);
+
+            return Request.CreateResponse(HttpStatusCode.OK, userDto);
         }
 
         /// <summary>
@@ -101,7 +105,7 @@ namespace OrangeApartments.Controllers
                 var postedFile = httpRequest.Files[0];
                 if (postedFile != null && postedFile.ContentLength > 0)
                 {
-                    int MaxContentLength = 1024 * 1024 * 4; //Size = 4 MB  
+                    int MaxContentLength = 1024 * 1024; //Size = 4 MB  
 
                     IList<string> AllowedFileExtensions = new List<string> { ".jpg", ".gif", ".png" };
                     var ext = postedFile.FileName.Substring(postedFile.FileName.LastIndexOf('.'));
@@ -113,7 +117,7 @@ namespace OrangeApartments.Controllers
                     }
                     else if (postedFile.ContentLength > MaxContentLength)       // verify file length
                     {
-                        dict.Add("error", string.Format("Please Upload a file upto 4 mb."));
+                        dict.Add("error", string.Format("Please Upload a file upto 1 mb."));
                         return Request.CreateResponse(HttpStatusCode.BadRequest, dict);
                     }
                     else                                                       // only one img file per user allowed.
@@ -138,5 +142,21 @@ namespace OrangeApartments.Controllers
                 return Request.CreateResponse(HttpStatusCode.NotFound, dict);
             }
 		}
+
+        [HttpGet]
+        [Route("api/user/{userId}/apartments")]
+        public HttpResponseMessage GetUserApartments(int userId)
+        {
+            try
+            {
+                var apartmentList = _uof.Apartments.GetApartmentsOfUser(userId);
+            
+                return Request.CreateResponse(HttpStatusCode.OK, apartmentList);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error occured during search apartments");
+            }
+        }
     }
 }
