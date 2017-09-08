@@ -27,7 +27,7 @@ namespace OrangeApartments
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            // Custom DB initializer
+            // DB initializer
             // Do not remove.
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<ApartmentContext, Configuration>());
 

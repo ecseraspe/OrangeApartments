@@ -19,9 +19,9 @@ namespace OrangeApartments.Core.Domain.DTO
             Square = apartment.Square;
             RentType = apartment.RentType;
             
-            Title = apartment.Title;
+            Title = apartment.Title == null ? "" : apartment.Title;
             Rating = apartment.Rating;
-            Description = apartment.Description;
+            Description = apartment.Description == null ? "" : apartment.Description;
             PostDate = apartment.PostDate.Date;
 
             City = apartment.City;
@@ -83,8 +83,8 @@ namespace OrangeApartments.Core.Domain.DTO
             apartment.BedroomCount = BedroomCount == 0 ? (short)1 : BedroomCount;
             apartment.SleepingPlaces = SleepingPlaces == 0 ? (short)1 : SleepingPlaces;
             apartment.Square = Square < 5 ? 5 : Square ;
-            apartment.Title = Title;
-            apartment.Description = Description;
+            apartment.Title = Title == null ? "" : Title;
+            apartment.Description = Description == null ? "" : Description;
             apartment.City = City;
 
             if (District == null)
