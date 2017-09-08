@@ -13,6 +13,7 @@ namespace OrangeApartments.Persistence.Repository
         public UserCommentsRepository(DbContext context) 
             : base(context)
         {
+            
         }
 
         public ApartmentContext ApartmentContext

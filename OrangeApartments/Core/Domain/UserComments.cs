@@ -14,8 +14,10 @@ namespace OrangeApartments.Core.Domain
         [MaxLength(500)]
         public string Comment { get; set; }
         public DateTime CommentDate { get; set; }
+        public int CommentatorId { get; set; }
+        public int CommentedUserId { get; set; }
 
-        public virtual User Commentator { get; set; }   // comment writer
-        public virtual User CommentedUser { get; set; } // receiver of comment
+        //public virtual User Commentator { get; set; }   // comment writer
+        //public virtual User CommentedUser { get; set; } // receiver of comment
     }
 }

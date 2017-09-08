@@ -15,9 +15,17 @@ namespace OrangeApartments.Helpers
 
         public static string CreateSession(int userId)
         {
-            var token = CreateToken(userId);
-            _sessions.Add(token, userId);
-            return token;
+            try
+            {
+                var token = CreateToken(userId);
+                _sessions.Add(token, userId);
+                return token;
+            }
+            catch (Exception e)
+            {
+                return "Error during create session";
+            }
+            
         }
 
         public static string CreateSession(User user)
